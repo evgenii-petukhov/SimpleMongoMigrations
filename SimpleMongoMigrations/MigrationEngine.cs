@@ -15,6 +15,11 @@ namespace SimpleMongoMigrations
         private readonly IMongoClient _externalClient;
         private readonly MigrationScanner _migrationScanner;
 
+        static MigrationEngine()
+        {
+            BsonSerializer.RegisterSerializer(typeof(Version), new VerstionStructSerializer());
+        }
+
         public MigrationEngine(
             string connectionString,
             string databaseName,
@@ -37,7 +42,6 @@ namespace SimpleMongoMigrations
         {
             _databaseName = databaseName;
             _migrationScanner = new MigrationScanner(assembly);
-            BsonSerializer.RegisterSerializer(typeof(Version), new VerstionStructSerializer());
         }
 
         public void Run()
