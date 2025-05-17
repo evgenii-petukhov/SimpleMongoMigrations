@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Driver, Version=3.3.0.0, Culture=neutral, PublicKeyToken=94992a530f44e321" />
+    <Reference Include="MongoDB.Driver, Version=3.4.0.0, Culture=neutral, PublicKeyToken=94992a530f44e321" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

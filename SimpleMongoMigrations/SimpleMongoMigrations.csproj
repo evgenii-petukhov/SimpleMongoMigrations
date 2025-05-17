@@ -2,10 +2,38 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
+    <Title>SimpleMongoMigrations</Title>
+    <Authors>Evgenii Petukhov</Authors>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Copyright © 2025 Evgenii Petukhov</Copyright>
+    <PackageProjectUrl>https://github.com/evgenii-petukhov/SimpleMongoMigrations</PackageProjectUrl>
+    <PackageTags>mongo mongodb migration schema-migration csharp dotnet schema migrator database-migration database .net azure cosmos cosmosdb aws documentdb</PackageTags>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>A lightweight wrapper around the official MongoDB C# Driver designed to help you manage document migrations in your MongoDB database which supports standalone MongoDB instances, Azure CosmosDB for MongoDB, and AWS DocumentDB.</Description>
+    <PackageReleaseNotes>Minimum implementation for .NET 6 and .NET Framework 4.7.2</PackageReleaseNotes>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/evgenii-petukhov/SimpleMongoMigrations</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="3.3.0" />
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
   </ItemGroup>
 
 </Project>
