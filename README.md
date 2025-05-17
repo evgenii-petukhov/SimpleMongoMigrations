@@ -4,7 +4,7 @@
 
 This project is inspired by and based on [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/).
 
-### Why a new package?
+## Why a new package?
 
 There are several reasons why I decided to create a new NuGet package instead of using the original MongoDBMigrations or its forks, such as [MongoDBMigrations (RZ version)](https://github.com/ruxo/MongoDbMigrations):
 

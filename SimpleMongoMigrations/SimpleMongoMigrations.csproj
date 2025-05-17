@@ -9,16 +9,17 @@
     <PackageProjectUrl>https://github.com/evgenii-petukhov/SimpleMongoMigrations</PackageProjectUrl>
     <PackageTags>mongo mongodb migration schema-migration csharp dotnet schema migrator database-migration database .net azure cosmos cosmosdb aws documentdb</PackageTags>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>logo_256x256.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>A lightweight wrapper around the official MongoDB C# Driver designed to help you manage document migrations in your MongoDB database which supports standalone MongoDB instances, Azure CosmosDB for MongoDB, and AWS DocumentDB.</Description>
-    <PackageReleaseNotes>Minimum implementation for .NET 6 and .NET Framework 4.7.2</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/evgenii-petukhov/SimpleMongoMigrations</RepositoryUrl>
+	<Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\icon.png">
+    <None Include="..\images\logo_256x256.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
