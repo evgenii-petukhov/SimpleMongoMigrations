@@ -2,13 +2,14 @@
 
 ### v1.0.3
 
-- Updated icon, refined README, and adjusted test project target frameworks to resolve compilation warnings
+- Updated README.md
 
 ---
 
 ### v1.0.2
 
 - Moved serializer registration to static constructor
+- Updated icon, refined README, and adjusted test project target frameworks to resolve compilation warnings
 
 ---
 
