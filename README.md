@@ -22,14 +22,23 @@ new MigrationEngine(
 ).Run();
 ```
 
+Unlike [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/), the `Run` method does not expect a version. All migrations will be executed unless they are marked with the `Ignore` attribute.
+
 ## Simple migration example
 
 See demos for [.NET 6](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.ConsoleNet6) and [.NET Framework 4.7.2](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.ConsoleNet472).
 
 ```csharp
+using MongoDB.Driver;
+using SimpleMongoMigrations.Abstractions;
+using SimpleMongoMigrations.Attributes;
+using SimpleMongoMigrations.ConsoleAppNet6.Models;
+
 namespace SimpleMongoMigrations.Tests.Migrations
 {
     [Version("0.0.3")] // You can also use numbers for versions, such as 1, 2, 3, etc.
+    [Name("Adds a unique index by name")] // Optional text description
+    [Ignore] // Ignore this migration, for instance, if it causes issues
     public class _003_AddIndexByName : IMigration
     {
         public void Up(IMongoDatabase database)
@@ -44,6 +53,28 @@ namespace SimpleMongoMigrations.Tests.Migrations
     }
 }
 ```
+
+Note that the `IMigration` interface does not include a `Down` method. This means you cannot roll back migrations or downgrade your database.
+
+## Migration history
+
+SimpleMongoMigrations maintains migration history in a way that is compatible with [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/). If you are already using MongoDBMigrations, you do not need to make any changes to your database — only minor code adjustments may be required to refactor your migrations.
+
+Below is a sample entry created in the `_migrations` collection:
+
+```
+{
+    "_id" : ObjectId("6828faf9642d86f79f782e4f"),
+    "n" : "Adds a unique index by name",
+    "v" : "0.0.3",
+    "d" : true,
+    "applied" : ISODate("2025-05-17T21:09:13.355+0000")
+}
+```
+
+## Transactions
+
+Transactions are not supported at the moment. However, support for transactions is planned for a future release.
 
 ## License
 
