@@ -1,5 +1,11 @@
 # SimpleMongoMigrations
 
+### v1.0.5
+
+- Played with GitHub workflows
+
+---
+
 ### v1.0.4
 
 - Updated README.md

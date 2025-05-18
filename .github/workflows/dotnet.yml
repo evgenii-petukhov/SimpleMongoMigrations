@@ -23,4 +23,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build SimpleMongoMigrations --no-restore
+      run: dotnet build SimpleMongoMigrations --no-restore --configuration Release
+    - name: Pack
+      run: dotnet pack SimpleMongoMigrations/SimpleMongoMigrations.csproj --configuration Release
+    - name: Publish
+      run: dotnet nuget push SimpleMongoMigrations/bin/Release/*.nupkg -k ${{ secrets.NUGET_APIKEY }} -s https://api.nuget.org/v3/index.json
