@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimpleMongoMigrations.Demo.Migrations\SimpleMongoMigrations.Demo.Migrations.csproj" />
-    <ProjectReference Include="..\SimpleMongoMigrations.Tests.Migrations\SimpleMongoMigrations.Demo.Migrations.csproj" />
     <ProjectReference Include="..\SimpleMongoMigrations\SimpleMongoMigrations.csproj" />
   </ItemGroup>
 

@@ -17,7 +17,7 @@ namespace SimpleMongoMigrations
 
         static MigrationEngine()
         {
-            BsonSerializer.RegisterSerializer(typeof(Version), new VerstionSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(Version), new VerstionSerializer());
         }
 
         public MigrationEngine(

@@ -92,6 +92,15 @@ namespace SimpleMongoMigrations.Tests
         }
 
         [Test]
+        public void Constructor_WithMajorIntegerOnly_ShouldSetProperties()
+        {
+            var version = new Version(7);
+            version.Major.Should().Be(7);
+            version.Minor.Should().Be(0);
+            version.Revision.Should().Be(0);
+        }
+
+        [Test]
         public void Constructor_WithMaxIntegers_ShouldParseCorrectly()
         {
             var max = int.MaxValue;

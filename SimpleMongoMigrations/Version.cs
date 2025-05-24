@@ -40,6 +40,18 @@ namespace SimpleMongoMigrations
                 : 0;
         }
 
+        public Version(int major)
+        {
+            if (major <= 0)
+            {
+                throw new InvalidVersionException(major.ToString());
+            }
+
+            Major = major;
+            Minor = 0;
+            Revision = 0;
+        }
+
         public Version(int major, int minor, int revision)
         {
             Major = major;
@@ -48,6 +60,11 @@ namespace SimpleMongoMigrations
         }
 
         public static implicit operator Version(string version)
+        {
+            return new Version(version);
+        }
+
+        public static implicit operator Version(int version)
         {
             return new Version(version);
         }
