@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimpleMongoMigrations.Tests.Migrations\SimpleMongoMigrations.Tests.Migrations.csproj" />
+    <ProjectReference Include="..\SimpleMongoMigrations.Demo.Migrations\SimpleMongoMigrations.Demo.Migrations.csproj" />
+    <ProjectReference Include="..\SimpleMongoMigrations.Tests.Migrations\SimpleMongoMigrations.Demo.Migrations.csproj" />
     <ProjectReference Include="..\SimpleMongoMigrations\SimpleMongoMigrations.csproj" />
   </ItemGroup>
 

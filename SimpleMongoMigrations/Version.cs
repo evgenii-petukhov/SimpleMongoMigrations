@@ -38,7 +38,6 @@ namespace SimpleMongoMigrations
                 : 0;
         }
 
-
         public Version(int major, int minor, int revision)
         {
             Major = major;

@@ -26,19 +26,18 @@ Unlike [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations
 
 ## Simple migration example
 
-See demos for [.NET 6](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.ConsoleNet6) and [.NET Framework 4.7.2](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.ConsoleNet472).
+See demos for [.NET 6](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.ConsoleNet6) and [.NET Framework 4.7.2](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.ConsoleNet472).
 
 ```csharp
 using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
-using SimpleMongoMigrations.ConsoleAppNet6.Models;
+using SimpleMongoMigrations.Demo.Models;
 
-namespace SimpleMongoMigrations.Tests.Migrations
+namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("0.0.3")] // You can also use numbers for versions, such as 1, 2, 3, etc.
-    [Name("Adds a unique index by name")] // Optional text description
-    [Ignore] // Ignore this migration, for instance, if it causes issues
+    [Version("0.0.3")]
+    [Name("Adds a unique index by name")]
     public class _003_AddIndexByName : IMigration
     {
         public void Up(IMongoDatabase database)

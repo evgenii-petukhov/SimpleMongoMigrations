@@ -2,7 +2,7 @@
 
 ### v1.0.5
 
-- Played with GitHub workflows
+- Automated publishing to NuGet
 
 ---
 

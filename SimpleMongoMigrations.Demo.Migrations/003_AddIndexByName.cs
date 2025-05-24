@@ -1,11 +1,12 @@
 ﻿using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
-using SimpleMongoMigrations.ConsoleAppNet6.Models;
+using SimpleMongoMigrations.Demo.Models;
 
-namespace SimpleMongoMigrations.Tests.Migrations
+namespace SimpleMongoMigrations.Demo.Migrations
 {
     [Version("0.0.3")]
+    [Name("Adds a unique index by name")]
     public class _003_AddIndexByName : IMigration
     {
         public void Up(IMongoDatabase database)

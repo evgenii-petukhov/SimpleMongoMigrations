@@ -1,7 +1,7 @@
-﻿using SimpleMongoMigrations.Tests.Migrations;
+﻿using SimpleMongoMigrations.Demo.Migrations;
 using System.Reflection;
 
-namespace SimpleMongoMigrations.ConsoleAppNet472
+namespace SimpleMongoMigrations.Demo.ConsoleNet472
 {
     internal class Program
     {

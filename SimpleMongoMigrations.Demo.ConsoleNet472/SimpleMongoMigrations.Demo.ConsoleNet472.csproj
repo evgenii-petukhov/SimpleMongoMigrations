@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A4F03802-51D0-4187-A0A5-CB6C89E0462D}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SimpleMongoMigrations.ConsoleAppNet472</RootNamespace>
-    <AssemblyName>SimpleMongoMigrations.ConsoleAppNet472</AssemblyName>
+    <RootNamespace>SimpleMongoMigrations.Demo.ConsoleNet472</RootNamespace>
+    <AssemblyName>SimpleMongoMigrations.Demo.ConsoleNet472</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -51,9 +51,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SimpleMongoMigrations.Tests.Migrations\SimpleMongoMigrations.Tests.Migrations.csproj">
-      <Project>{96347d12-4984-4ad5-bf52-bd0a81c42be9}</Project>
-      <Name>SimpleMongoMigrations.Tests.Migrations</Name>
+    <ProjectReference Include="..\SimpleMongoMigrations.Demo.Migrations\SimpleMongoMigrations.Demo.Migrations.csproj">
+      <Project>{a480cdf0-8a68-4bf0-bce4-d5cdb79981e5}</Project>
+      <Name>SimpleMongoMigrations.Demo.Migrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\SimpleMongoMigrations\SimpleMongoMigrations.csproj">
       <Project>{fcc6e3fe-2d3e-439d-be8f-ecb18bb89cba}</Project>

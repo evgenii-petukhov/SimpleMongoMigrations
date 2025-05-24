@@ -1,12 +1,13 @@
 ﻿using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
-using SimpleMongoMigrations.ConsoleAppNet6.Models;
+using SimpleMongoMigrations.Demo.Models;
 using System.Collections.Generic;
 
-namespace SimpleMongoMigrations.Tests.Migrations
+namespace SimpleMongoMigrations.Demo.Migrations
 {
     [Version("0.0.1")]
+    [Name("Populates the City collection with sample data")]
     public class _001_AddDefaultData : IMigration
     {
         public void Up(IMongoDatabase database)
