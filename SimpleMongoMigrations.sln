@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMongoMigrations.Demo.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMongoMigrations.Demo.Models", "SimpleMongoMigrations.Demo.Models\SimpleMongoMigrations.Demo.Models.csproj", "{5F0B4D81-92BB-4326-9F2F-9E82CDA59BAD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FFA1F390-A4B3-4964-BABE-5BAF2D2DEB47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMongoMigrations.Tests", "SimpleMongoMigrations.Tests\SimpleMongoMigrations.Tests.csproj", "{A6C3070E-B7C0-4CF9-B9E1-6F79CF9D6A77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,10 @@ Global
 		{5F0B4D81-92BB-4326-9F2F-9E82CDA59BAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F0B4D81-92BB-4326-9F2F-9E82CDA59BAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F0B4D81-92BB-4326-9F2F-9E82CDA59BAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6C3070E-B7C0-4CF9-B9E1-6F79CF9D6A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6C3070E-B7C0-4CF9-B9E1-6F79CF9D6A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6C3070E-B7C0-4CF9-B9E1-6F79CF9D6A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6C3070E-B7C0-4CF9-B9E1-6F79CF9D6A77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +58,6 @@ Global
 		{A4F03802-51D0-4187-A0A5-CB6C89E0462D} = {8D9E3058-CB45-4E2D-970C-A648746F71D8}
 		{A480CDF0-8A68-4BF0-BCE4-D5CDB79981E5} = {8D9E3058-CB45-4E2D-970C-A648746F71D8}
 		{5F0B4D81-92BB-4326-9F2F-9E82CDA59BAD} = {8D9E3058-CB45-4E2D-970C-A648746F71D8}
+		{A6C3070E-B7C0-4CF9-B9E1-6F79CF9D6A77} = {FFA1F390-A4B3-4964-BABE-5BAF2D2DEB47}
 	EndGlobalSection
 EndGlobal

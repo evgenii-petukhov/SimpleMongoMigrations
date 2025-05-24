@@ -1,12 +1,13 @@
 ﻿using SimpleMongoMigrations.Exceptions;
 using System;
+using System.Text.RegularExpressions;
 
 namespace SimpleMongoMigrations
 {
     public struct Version : IComparable<Version>
     {
-        private const char VERSION_SPLITTER = '.';
-        private const int MAX_LENGTH = 3;
+        private const char VersionSeparator = '.';
+        private const string VersionRegexPattern = @"^\d+(\.\d+){0,2}$";
         public readonly int Major;
         public readonly int Minor;
         public readonly int Revision;
@@ -20,16 +21,17 @@ namespace SimpleMongoMigrations
                 throw new InvalidVersionException(version);
             }
 
-            var parts = version.Split(VERSION_SPLITTER);
-
-            if (parts.Length > MAX_LENGTH)
+            if (!Regex.Match(version, VersionRegexPattern).Success)
             {
-                throw new VersionStringTooLongException(version);
+                throw new InvalidVersionException(version);
             }
+
+            var parts = version.Split(VersionSeparator);
 
             Major = parts.Length > 0 && int.TryParse(parts[0], out var major)
                 ? major
-                : throw new InvalidVersionException(parts[0]);
+                : 0;
+
             Minor = parts.Length > 1 && int.TryParse(parts[1], out var minor) 
                 ? minor
                 : 0;
