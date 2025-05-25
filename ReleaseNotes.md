@@ -2,6 +2,12 @@
 
 ---
 
+### v1.0.9
+- Introduced a fluent API via `MigrationEngineBuilder` for flexible `MigrationEngine` configuration.
+- Added transaction support with MongoDB sessions for transaction management.
+
+---
+
 ### v1.0.8
 - Updated test projects to target .NET 9.
 
