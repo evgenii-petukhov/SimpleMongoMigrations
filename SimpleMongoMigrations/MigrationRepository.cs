@@ -6,19 +6,18 @@ namespace SimpleMongoMigrations
 {
     public class MigrationRepository
     {
-        private const string CollectionName = "_migrations";
         private readonly IMongoCollection<Migration> _migrationCollection;
 
         public MigrationRepository(IMongoDatabase database)
         {
-            _migrationCollection = database.GetCollection<Migration>(CollectionName);
+            _migrationCollection = database.GetCollection<Migration>(MigrationConstants.MigrationCollectionName);
         }
 
         public Migration GetMostRecentAppliedMigration()
         {
             return _migrationCollection
                 .Find(Builders<Migration>.Filter.Eq(x => x.IsUp, true))
-                .Sort(Builders<Migration>.Sort.Descending(x => x.TimeStamp))
+                .Sort(Builders<Migration>.Sort.Descending(x => x.Version))
                 .FirstOrDefault();
         }
 

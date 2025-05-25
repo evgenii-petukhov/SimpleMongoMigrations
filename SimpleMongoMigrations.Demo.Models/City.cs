@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace SimpleMongoMigrations.ConsoleAppNet6.Models
+namespace SimpleMongoMigrations.Demo.Models
 {
     public class City
     {

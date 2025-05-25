@@ -11,5 +11,10 @@ namespace SimpleMongoMigrations.Attributes
         {
             Version = version;
         }
+
+        public VersionAttribute(int version)
+        {
+            Version = version;
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using SimpleMongoMigrations;
-using SimpleMongoMigrations.Tests.Migrations;
+using SimpleMongoMigrations.Demo.Migrations;
 using System.Reflection;
 
 new MigrationEngine(

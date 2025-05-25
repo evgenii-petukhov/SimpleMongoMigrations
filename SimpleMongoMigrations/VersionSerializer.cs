@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace SimpleMongoMigrations
 {
-    public class VerstionStructSerializer : SerializerBase<Version>
+    public class VerstionSerializer : SerializerBase<Version>
     {
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Version value)
         {

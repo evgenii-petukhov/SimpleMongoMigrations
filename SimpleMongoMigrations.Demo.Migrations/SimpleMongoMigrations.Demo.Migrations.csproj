@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimpleMongoMigrations.Tests.Models\SimpleMongoMigrations.Tests.Models.csproj" />
+    <ProjectReference Include="..\SimpleMongoMigrations.Demo.Models\SimpleMongoMigrations.Demo.Models.csproj" />
     <ProjectReference Include="..\SimpleMongoMigrations\SimpleMongoMigrations.csproj" />
   </ItemGroup>
 
