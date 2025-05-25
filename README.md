@@ -28,6 +28,8 @@ Unlike [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations
 
 See demos for [.NET 6](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.ConsoleNet6) and [.NET Framework 4.7.2](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.ConsoleNet472).
 
+You can also find migration samples in the [demo](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.Migrations) and [test](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.VerifyMigrationOrder/Migrations) projects.
+
 ```csharp
 using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
@@ -53,11 +55,11 @@ namespace SimpleMongoMigrations.Demo.Migrations
 }
 ```
 
-Note that the `IMigration` interface does not include a `Down` method. This means you cannot roll back migrations or downgrade your database.
+> **Note:** The `IMigration` interface does not include a `Down` method. This means you cannot roll back migrations or downgrade your database.
 
 ## Migration history
 
-SimpleMongoMigrations maintains migration history in a way that is compatible with [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/). If you are already using MongoDBMigrations, you do not need to make any changes to your database — only minor code adjustments may be required to refactor your migrations.
+SimpleMongoMigrations maintains migration history in a way that is compatible with [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/). If you are already using MongoDBMigrations, you do not need to make any changes to your database—only minor code adjustments may be required to refactor your migrations.
 
 Below is a sample entry created in the `_migrations` collection:
 
