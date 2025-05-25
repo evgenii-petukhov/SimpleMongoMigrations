@@ -10,6 +10,40 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
     {
         private const string TestDbName = "TestDB";
 
+        private readonly List<Migration> _migrations =
+        [
+            new() {
+                Name = "Adds default data",
+                Version = new Version("1.0.0"),
+                IsUp = true
+            },
+            new() {
+                Name = "Adds age",
+                Version = new Version("2.0.0"),
+                IsUp = true
+            },
+            new() {
+                Name = null,
+                Version = new Version("3.0.0"),
+                IsUp = true
+            },
+            new() {
+                Name = "Adds preferences",
+                Version = new Version("6.0.0"),
+                IsUp = true
+            },
+            new() {
+                Name = "Adds another person",
+                Version = new Version("7.0.0"),
+                IsUp = true
+            },
+            new() {
+                Name = "Sets status",
+                Version = new Version("8.0.0"),
+                IsUp = true
+            }
+        ];
+
         private MongoDbRunner _runner;
         private MongoClient _client;
         private IMongoCollection<Migration> _migrationCollection;
@@ -51,39 +85,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
                 .Find(Builders<Migration>.Filter.Empty)
                 .ToList()
                 .Should()
-                .BeEquivalentTo(new List<Migration>
-                {
-                    new() {
-                        Name = "Adds default data",
-                        Version = new Version("1.0.0"),
-                        IsUp = true,
-                    },
-                    new() {
-                        Name = "Adds age",
-                        Version = new Version("2.0.0"),
-                        IsUp = true,
-                    },
-                    new() {
-                        Name = null,
-                        Version = new Version("3.0.0"),
-                        IsUp = true,
-                    },
-                    new() {
-                        Name = "Adds preferences",
-                        Version = new Version("6.0.0"),
-                        IsUp = true,
-                    },
-                    new() {
-                        Name = "Adds another person",
-                        Version = new Version("7.0.0"),
-                        IsUp = true,
-                    },
-                    new() {
-                        Name = "Sets status",
-                        Version = new Version("8.0.0"),
-                        IsUp = true,
-                    },
-                }, options => options.Excluding(x => x.Id).Excluding(x => x.TimeStamp).ComparingByMembers<Person>().WithStrictOrdering());
+                .BeEquivalentTo(_migrations, options => options.Excluding(x => x.Id).Excluding(x => x.TimeStamp).ComparingByMembers<Person>().WithStrictOrdering());
 
             var personsCollection = _database.GetCollection<Person>(nameof(Person));
             personsCollection
@@ -101,43 +103,42 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
         [Test]
         public void Run_AppliesOnlyMissingVersionedMigrations_WhenSomeAlreadyApplied()
         {
-            var migrationEngine = new MigrationEngine(_client, TestDbName, typeof(Person).Assembly);
             // Arrange
-            _migrationCollection
-                .InsertMany(
-                [
-                    new() {
-                        Name = "Adds default data",
-                        Version = new Version("1.0.0"),
-                        IsUp = true,
-                    },
-                    new() {
-                        Name = "Adds age",
-                        Version = new Version("2.0.0"),
-                        IsUp = true,
-                    },
-                ]);
-
-            var a = _migrationCollection
-                .Find(Builders<Migration>.Filter.Empty)
-                .ToList();
+            _migrationCollection.InsertMany(_migrations.Take(2).Select(m =>
+            {
+                m.TimeStamp = new DateTime(2020, 1, 1);
+                return m;
+            }));
 
             var personsCollection = _database.GetCollection<Person>(nameof(Person));
-            personsCollection
-                .InsertOne(new Person
-                {
-                    Data = "Olivia, 28 y.o., "
-                });
+            personsCollection.InsertOne(new Person
+            {
+                Data = "Olivia, 28 y.o., "
+            });
 
             // Act
 
-            migrationEngine.Run();
+            _migrationEngine.Run();
 
             // Assert
             _migrationCollection
                 .CountDocuments(Builders<Migration>.Filter.Empty)
                 .Should()
                 .Be(6);
+
+            _migrationCollection
+                .Find(Builders<Migration>.Filter.Empty)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(_migrations.Select((m, i) =>
+                {
+                    if (i < 2)
+                    {
+                        m.TimeStamp = new DateTime(2020, 1, 1);
+                    }
+                    
+                    return m;
+                }), options => options.Excluding(x => x.Id).Excluding(x => x.TimeStamp).ComparingByMembers<Person>().WithStrictOrdering());
 
             personsCollection
                 .Find(Builders<Person>.Filter.Empty)
@@ -148,6 +149,66 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
                 [
                     "Olivia, 28 y.o., from Paris, loves cars, married",
                     "Lucas, married"
+                ]);
+        }
+
+        [Test]
+        public void Run_DoesNotReapplyMigrations_WhenAllAreAlreadyApplied()
+        {
+            // Arrange
+            var appliedMigrations = _migrations
+                .Select(m =>
+                {
+                    m.TimeStamp = new DateTime(2020, 1, 1);
+                    return m;
+                })
+                .ToList();
+
+            _migrationCollection.InsertMany(appliedMigrations);
+
+            var a = _migrationCollection
+                .Find(Builders<Migration>.Filter.Empty)
+                .ToList();
+
+            var personsCollection = _database.GetCollection<Person>(nameof(Person));
+            personsCollection
+                .InsertMany(
+                [
+                    new Person
+                    {
+                        Data = "Olivia, 28 y.o., from Paris, loves cars, married, no change",
+                    },
+                    new Person
+                    {
+                        Data = "Lucas, married, no change"
+                    }
+                ]);
+
+            // Act
+
+            _migrationEngine.Run();
+
+            // Assert
+            _migrationCollection
+                .CountDocuments(Builders<Migration>.Filter.Empty)
+                .Should()
+                .Be(6);
+
+            _migrationCollection
+                .Find(Builders<Migration>.Filter.Empty)
+                .ToList()
+                .Should()
+                .BeEquivalentTo(appliedMigrations, options => options.Excluding(x => x.Id).Excluding(x => x.TimeStamp).ComparingByMembers<Person>().WithStrictOrdering());
+
+            personsCollection
+                .Find(Builders<Person>.Filter.Empty)
+                .ToList()
+                .Select(p => p.Data)
+                .Should()
+                .BeEquivalentTo(
+                [
+                    "Olivia, 28 y.o., from Paris, loves cars, married, no change",
+                    "Lucas, married, no change"
                 ]);
         }
     }
