@@ -14,12 +14,16 @@ I decided to create a new NuGet package instead of using the original MongoDBMig
 
 ## How to use
 
+The migration engine can be set up and configured with a fluent API:
+
 ```csharp
-new MigrationEngine(
-    "mongodb://localhost:27017", // connection string
-    "TestDB", // database name
-    Assembly.GetAssembly(typeof(_001_AddDefaultData)) // assembly to scan for migrations
-).Run();
+MigrationEngineBuilder
+    .Create()
+    .WithConnectionString("mongodb://localhost:27017")
+    .WithDatabase("TestDB")
+    .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddDefaultData)))
+    .Build()
+    .Run();
 ```
 
 Unlike [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/), the `Run` method does not expect a version. All migrations will be executed unless they are marked with the `Ignore` attribute.
@@ -38,18 +42,20 @@ using SimpleMongoMigrations.Demo.Models;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("0.0.3")]
+    [Version("4")]
     [Name("Adds a unique index by name")]
-    public class _003_AddIndexByName : IMigration
+    public class _4_0_0_AddIndexByName : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
-            database.GetCollection<City>(nameof(City)).Indexes.CreateOne(new CreateIndexModel<City>(
-                Builders<City>.IndexKeys.Ascending(x => x.Name),
-                new CreateIndexOptions
-                {
-                    Unique = true
-                }));
+            database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+                // session, // Uncomment this line if you specified transactionScope in your settings and want to use transactions
+                new CreateIndexModel<City>(
+                    Builders<City>.IndexKeys.Ascending(x => x.Name),
+                    new CreateIndexOptions
+                    {
+                        Unique = true
+                    }));
         }
     }
 }
@@ -75,7 +81,51 @@ Below is a sample entry created in the `_migrations` collection:
 
 ## Transactions
 
-Transactions are not supported at the moment. However, support for transactions is planned for a future release.
+Transactions help ensure your database remains in a consistent state if the migration process fails.
+
+To specify how migrations are wrapped in transactions, pass a `TransactionScope` value to `WithTransactionScope` when configuring the `MigrationEngine`. There are three options:
+
+- **None** – Transactions are not used (default).
+- **SingleMigration** – Each migration is wrapped in a separate transaction.
+- **AllMigrations** – All migrations are wrapped in a single transaction.
+
+```csharp
+MigrationEngineBuilder
+    .Create()
+    .WithConnectionString("mongodb://localhost:27017")
+    .WithDatabase("TestDB")
+    .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddDefaultData)))
+    .WithTransactionScope(TransactionScope.AllMigrations) // Optional, can be omitted if not needed
+    .Build()
+    .Run();
+```
+
+When using either of the last two options, an instance of `IClientSessionHandle` is passed to the `Up` method of your migrations. You should pass this session to all database operations, for example:
+
+```csharp
+public void Up(IMongoDatabase database, IClientSessionHandle session)
+{
+    database.GetCollection<City>(nameof(City)).UpdateOne(
+        session,
+        Builders<City>.Filter.Eq(x => x.Name, "London"),
+        Builders<City>.Update.Set(x => x.CountryCode, "GB"));
+}
+```
+
+> **Note:** Multi-document transactions are supported only on certain MongoDB deployments:
+> - **Replica Set** (MongoDB 4.0+)
+> - **Sharded Cluster** (MongoDB 4.2+)
+> - **MongoDB Atlas** (M0/M2/M5 Free/Shared and M10+ Dedicated Clusters)
+> - **Azure Cosmos DB** (MongoDB API v4.0+)
+>
+> Standalone MongoDB instances do **not** support multi-document transactions. The migration engine automatically detects whether transactions are supported. If transactions are not supported, the transaction scope specified in `WithTransactionScope` will be ignored, and the `session` parameter of the `Up` method will be `null`.
+>
+> **Limitations:**  
+> - All operations in a transaction must be on collections within the same database.
+> - Transactions have duration and size limits (e.g., 60 seconds and 16MB in MongoDB).
+> - Cosmos DB supports multi-document transactions only within a single partition key value.
+>
+> Ensure your migration logic is compatible with these limitations and always test transactional migrations in your target environment.
 
 ## License
 
