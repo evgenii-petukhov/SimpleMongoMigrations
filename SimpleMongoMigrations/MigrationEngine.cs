@@ -20,6 +20,7 @@ namespace SimpleMongoMigrations
             BsonSerializer.TryRegisterSerializer(typeof(Version), new VerstionSerializer());
         }
 
+        [Obsolete("Direct instantiation is deprecated. Please use MigrationEngineBuilder for configuring and creating MigrationEngine instances.")]
         public MigrationEngine(
             string connectionString,
             string databaseName,

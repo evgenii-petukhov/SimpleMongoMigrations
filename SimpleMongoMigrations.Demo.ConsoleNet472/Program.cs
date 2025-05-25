@@ -7,10 +7,12 @@ namespace SimpleMongoMigrations.Demo.ConsoleNet472
     {
         static void Main(string[] args)
         {
-            new MigrationEngine(
-                "mongodb://localhost:27017",
-                "TestDB",
-                Assembly.GetAssembly(typeof(_001_AddDefaultData)))
+            MigrationEngineBuilder
+                .Create()
+                .WithConnectionString("mongodb://localhost:27017")
+                .WithDatabase("TestDB")
+                .WithAssembly(Assembly.GetAssembly(typeof(_001_AddDefaultData)))
+                .Build()
                 .Run();
         }
     }
