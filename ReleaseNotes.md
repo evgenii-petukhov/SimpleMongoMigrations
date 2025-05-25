@@ -1,10 +1,17 @@
 # SimpleMongoMigrations
 
+### v1.0.7
+- Add missing dependencies to .NET Framework demo project
+
+---
+
 ### v1.0.6
 - Restructured solution and renamed projects to better reflect their purpose
 - Refactored Version constructor
 - Added unit tests
 - Configured CI to run unit tests on push to master
+
+---
 
 ### v1.0.5
 
