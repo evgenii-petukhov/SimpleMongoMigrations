@@ -1,30 +1,37 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace SimpleMongoMigrations
 {
+    /// <summary>
+    /// Engine for running MongoDB migrations with optional transaction support.
+    /// </summary>
     public class MigrationEngine
     {
         private readonly string _databaseName;
         private readonly string _connectionString;
         private readonly IMongoClient _externalClient;
         private readonly MigrationScanner _migrationScanner;
+        private readonly TransactionScope _transactionScope;
 
         static MigrationEngine()
         {
             BsonSerializer.TryRegisterSerializer(typeof(Version), new VerstionSerializer());
         }
 
-        [Obsolete("Direct instantiation is deprecated. Please use MigrationEngineBuilder for configuring and creating MigrationEngine instances.")]
-        public MigrationEngine(
+        internal MigrationEngine(
             string connectionString,
             string databaseName,
-            Assembly assembly) : this(databaseName, assembly)
+            TransactionScope transactionScope,
+            Assembly assembly)
+            : this(databaseName, assembly, transactionScope)
         {
             _connectionString = connectionString;
         }
@@ -32,19 +39,26 @@ namespace SimpleMongoMigrations
         public MigrationEngine(
             IMongoClient client,
             string databaseName,
-            Assembly assembly) : this(databaseName, assembly)
+            Assembly assembly,
+            TransactionScope transactionScope = TransactionScope.None)
+            : this(databaseName, assembly, transactionScope)
         {
             _externalClient = client;
         }
 
         private MigrationEngine(
             string databaseName,
-            Assembly assembly)
+            Assembly assembly,
+            TransactionScope transactionScope)
         {
             _databaseName = databaseName;
+            _transactionScope = transactionScope;
             _migrationScanner = new MigrationScanner(assembly);
         }
 
+        /// <summary>
+        /// Runs all pending migrations using the configured transaction scope.
+        /// </summary>
         public void Run()
         {
             if (_externalClient == null)
@@ -74,16 +88,105 @@ namespace SimpleMongoMigrations
                     migration.GetCustomAttribute<VersionAttribute>().Version
                 })
                 .Where(g => g.Version > latestVersion)
+                .OrderBy(g => g.Version)
+                .Select(g => g.Type)
                 .ToList();
 
-            foreach (var migrationType in migrationsToRun.OrderBy(g => g.Version).Select(g => g.Type))
+            var transactionSupportChecker = new TransactionSupportChecker(client);
+
+            if (transactionSupportChecker.IsTransactionSupported)
             {
-                var migration = (IMigration)Activator.CreateInstance(migrationType);
-                migration.Up(database);
-                migrationRepository.SaveMigration(
-                    migrationType.GetCustomAttribute<VersionAttribute>().Version,
-                    migrationType.GetCustomAttribute<NameAttribute>()?.Name);
+                switch (_transactionScope)
+                {
+                    case TransactionScope.AllMigrations:
+                        ApplyMigrationsInSingleTransaction(client, database, migrationRepository, migrationsToRun);
+                        break;
+                    case TransactionScope.SingleMigration:
+                        ApplyMigrationsInSeparateTransactions(client, database, migrationRepository, migrationsToRun);
+                        break;
+                    case TransactionScope.None:
+                    default:
+                        ApplyMigrationsWithoutTransaction(database, migrationRepository, migrationsToRun);
+                        break;
+                }
             }
+            else
+            {
+                ApplyMigrationsWithoutTransaction(database, migrationRepository, migrationsToRun);
+            }
+        }
+
+        private void ApplyMigrationsInSingleTransaction(
+            IMongoClient client,
+            IMongoDatabase database,
+            MigrationRepository migrationRepository,
+            IEnumerable<Type> migrationsToRun)
+        {
+            using (var session = client.StartSession())
+            {
+                session.StartTransaction();
+                try
+                {
+                    foreach (var migrationType in migrationsToRun)
+                    {
+                        ApplyMigration(database, migrationRepository, migrationType);
+                    }
+                    session.CommitTransaction();
+                }
+                catch
+                {
+                    session.AbortTransaction();
+                    throw;
+                }
+            }
+        }
+
+        private void ApplyMigrationsInSeparateTransactions(
+            IMongoClient client,
+            IMongoDatabase database,
+            MigrationRepository migrationRepository,
+            IEnumerable<Type> migrationsToRun)
+        {
+            foreach (var migrationType in migrationsToRun)
+            {
+                using (var session = client.StartSession())
+                {
+                    session.StartTransaction();
+                    try
+                    {
+                        ApplyMigration(database, migrationRepository, migrationType);
+                        session.CommitTransaction();
+                    }
+                    catch
+                    {
+                        session.AbortTransaction();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private void ApplyMigrationsWithoutTransaction(
+            IMongoDatabase database,
+            MigrationRepository migrationRepository,
+            IEnumerable<Type> migrationsToRun)
+        {
+            foreach (var migrationType in migrationsToRun)
+            {
+                ApplyMigration(database, migrationRepository, migrationType);
+            }
+        }
+
+        private void ApplyMigration(
+            IMongoDatabase database,
+            MigrationRepository migrationRepository,
+            Type migrationType)
+        {
+            var migration = (IMigration)Activator.CreateInstance(migrationType);
+            migration.Up(database);
+            migrationRepository.SaveMigration(
+                migrationType.GetCustomAttribute<VersionAttribute>().Version,
+                migrationType.GetCustomAttribute<NameAttribute>()?.Name);
         }
     }
 }
