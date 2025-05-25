@@ -1,49 +1,51 @@
-# SimpleMongoMigrations
+# SimpleMongoMigrations – Release Notes
+
+---
+
+### v1.0.8
+- Updated test projects to target .NET 9.
+
+---
 
 ### v1.0.7
-- Add missing dependencies to .NET Framework demo project
+- Added missing dependencies to the .NET Framework demo project.
 
 ---
 
 ### v1.0.6
-- Restructured solution and renamed projects to better reflect their purpose
-- Refactored Version constructor
-- Added unit tests
-- Configured CI to run unit tests on push to master
+- Restructured the solution and renamed projects for improved clarity.
+- Refactored the `Version` constructor.
+- Added unit tests.
+- Configured CI to run unit tests on pushes to the master branch.
 
 ---
 
 ### v1.0.5
-
-- Automated publishing to NuGet
+- Automated publishing to NuGet.
 
 ---
 
 ### v1.0.4
-
-- Updated README.md
+- Updated README.md.
 
 ---
 
 ### v1.0.3
-
-- Updated README.md
+- Updated README.md.
 
 ---
 
 ### v1.0.2
-
-- Moved serializer registration to static constructor
-- Updated icon, refined README, and adjusted test project target frameworks to resolve compilation warnings
+- Moved serializer registration to a static constructor.
+- Updated icon, refined README, and adjusted test project target frameworks to resolve compilation warnings.
 
 ---
 
 ### v1.0.1
-
-- Added package description, icon, and README; updated MongoDB.Driver to 3.4.0
+- Added package description, icon, and README.
+- Updated MongoDB.Driver to version 3.4.0.
 
 ---
 
 ### v1.0.0
-
-- Minimum implementation for .NET 6 and .NET Framework 4.7.2
+- Initial implementation for .NET 6 and .NET Framework 4.7.2.
