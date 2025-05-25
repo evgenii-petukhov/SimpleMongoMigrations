@@ -129,7 +129,7 @@ namespace SimpleMongoMigrations
                 {
                     foreach (var migrationType in migrationsToRun)
                     {
-                        ApplyMigration(database, migrationRepository, migrationType);
+                        ApplyMigration(database, session, migrationRepository, migrationType);
                     }
                     session.CommitTransaction();
                 }
@@ -154,7 +154,7 @@ namespace SimpleMongoMigrations
                     session.StartTransaction();
                     try
                     {
-                        ApplyMigration(database, migrationRepository, migrationType);
+                        ApplyMigration(database, session, migrationRepository, migrationType);
                         session.CommitTransaction();
                     }
                     catch
@@ -173,18 +173,20 @@ namespace SimpleMongoMigrations
         {
             foreach (var migrationType in migrationsToRun)
             {
-                ApplyMigration(database, migrationRepository, migrationType);
+                ApplyMigration(database, null, migrationRepository, migrationType);
             }
         }
 
         private void ApplyMigration(
             IMongoDatabase database,
+            IClientSessionHandle session,
             MigrationRepository migrationRepository,
             Type migrationType)
         {
             var migration = (IMigration)Activator.CreateInstance(migrationType);
-            migration.Up(database);
+            migration.Up(database, session);
             migrationRepository.SaveMigration(
+                session,
                 migrationType.GetCustomAttribute<VersionAttribute>().Version,
                 migrationType.GetCustomAttribute<NameAttribute>()?.Name);
         }

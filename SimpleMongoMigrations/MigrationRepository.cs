@@ -21,15 +21,41 @@ namespace SimpleMongoMigrations
                 .FirstOrDefault();
         }
 
-        public void SaveMigration(Version version, string name)
+        public void SaveMigration(IClientSessionHandle session, Version version, string name)
         {
-            _migrationCollection.InsertOne(new Migration
+            if (session == null)
             {
-                Name = name,
-                Version = version,
-                IsUp = true,
-                TimeStamp = DateTime.UtcNow
-            });
+                SaveMigrationInternal(version, name);
+            }
+            else
+            {
+                SaveMigrationInternal(session, version, name);
+            }
+        }
+
+        private void SaveMigrationInternal(IClientSessionHandle session, Version version, string name)
+        {
+            _migrationCollection.InsertOne(
+                session,
+                new Migration
+                {
+                    Name = name,
+                    Version = version,
+                    IsUp = true,
+                    TimeStamp = DateTime.UtcNow
+                });
+        }
+
+        private void SaveMigrationInternal(Version version, string name)
+        {
+            _migrationCollection.InsertOne(
+                new Migration
+                {
+                    Name = name,
+                    Version = version,
+                    IsUp = true,
+                    TimeStamp = DateTime.UtcNow
+                });
         }
     }
 }

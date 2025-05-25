@@ -5,13 +5,13 @@ using SimpleMongoMigrations.Tests.VerifyMigrationOrder.Helpers;
 
 namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
 {
-    [Version(6)]
-    [Name("Adds preferences")]
-    public class _006_VersionAsInteger : IMigration
+    [Version("2.0.0")]
+    [Name("Adds age")]
+    public class _2_0_0_AddAge : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
-            MongoHelper.AppendTextToAllPersonsData(database, "loves cars, ");
+            MongoHelper.AppendTextToAllPersonsData(database, "28 y.o., ");
         }
     }
 }

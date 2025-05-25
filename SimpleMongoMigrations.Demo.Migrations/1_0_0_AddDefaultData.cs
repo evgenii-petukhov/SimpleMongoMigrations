@@ -6,13 +6,14 @@ using System.Collections.Generic;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("0.0.1")]
+    [Version("1.0.0")]
     [Name("Populates the City collection with sample data")]
-    public class _001_AddDefaultData : IMigration
+    public class _1_0_0_AddDefaultData : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
             database.GetCollection<City>(nameof(City)).InsertMany(
+                //session, // Uncomment this line if you want to use a session for the insert operation
                 new List<City>
                 {
                     new City

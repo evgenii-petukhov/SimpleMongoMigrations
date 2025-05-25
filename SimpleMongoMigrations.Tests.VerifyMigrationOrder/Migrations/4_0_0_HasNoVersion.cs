@@ -4,9 +4,9 @@ using SimpleMongoMigrations.Tests.VerifyMigrationOrder.Helpers;
 
 namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
 {
-    public class _004_HasNoVersion : IMigration
+    public class _4_0_0_HasNoVersion : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "no version");
         }

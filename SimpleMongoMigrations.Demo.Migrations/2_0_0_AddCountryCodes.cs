@@ -5,29 +5,34 @@ using SimpleMongoMigrations.Demo.Models;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("0.0.2")]
+    [Version("2.0.0")]
     [Name("Adds a country code for each entry of the City collection")]
-    public class _002_AddDefaultData : IMigration
+    public class _2_0_0_AddCountryCodes : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
             database.GetCollection<City>(nameof(City)).UpdateOne(
+                //session, // Uncomment this line if you want to use a session for the insert operation
                 Builders<City>.Filter.Eq(x => x.Name, "London"),
                 Builders<City>.Update.Set(x => x.CountryCode, "GB"));
 
             database.GetCollection<City>(nameof(City)).UpdateOne(
+                //session, // Uncomment this line if you want to use a session for the insert operation
                 Builders<City>.Filter.Eq(x => x.Name, "Milan"),
                 Builders<City>.Update.Set(x => x.CountryCode, "IT"));
 
             database.GetCollection<City>(nameof(City)).UpdateOne(
+                //session, // Uncomment this line if you want to use a session for the insert operation
                 Builders<City>.Filter.Eq(x => x.Name, "Barcelona"),
                 Builders<City>.Update.Set(x => x.CountryCode, "SP"));
 
             database.GetCollection<City>(nameof(City)).UpdateOne(
+                //session, // Uncomment this line if you want to use a session for the insert operation
                 Builders<City>.Filter.Eq(x => x.Name, "Berlin"),
                 Builders<City>.Update.Set(x => x.CountryCode, "DE"));
 
             database.GetCollection<City>(nameof(City)).UpdateOne(
+                //session, // Uncomment this line if you want to use a session for the insert operation
                 Builders<City>.Filter.Eq(x => x.Name, "Paris"),
                 Builders<City>.Update.Set(x => x.CountryCode, "FR"));
         }

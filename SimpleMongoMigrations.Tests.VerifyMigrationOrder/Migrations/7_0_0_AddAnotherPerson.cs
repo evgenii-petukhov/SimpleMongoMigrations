@@ -4,15 +4,15 @@ using SimpleMongoMigrations.Attributes;
 
 namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
 {
-    [Version("1.0.0")]
-    [Name("Adds default data")]
-    public class _001_AddDefaultData : IMigration
+    [Version(7)]
+    [Name("Adds another person")]
+    public class _7_0_0_AddAnotherPerson : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
             database.GetCollection<Person>(nameof(Person)).InsertOne(new Person
             {
-                Data = "Olivia, "
+                Data = "Lucas, "
             });
         }
     }
