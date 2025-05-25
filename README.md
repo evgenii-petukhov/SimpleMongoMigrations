@@ -19,9 +19,9 @@ The migration engine can be set up and configured with a fluent API:
 ```csharp
 MigrationEngineBuilder
     .Create()
-    .WithConnectionString("mongodb://localhost:27017")
-    .WithDatabase("TestDB")
-    .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddDefaultData)))
+    .WithConnectionString("mongodb://localhost:27017") // connection string
+    .WithDatabase("TestDB") // database name
+    .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddDefaultData))) // assembly to scan for migrations
     .Build()
     .Run();
 ```
