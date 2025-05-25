@@ -6,9 +6,9 @@ using SimpleMongoMigrations.Tests.VerifyMigrationOrder.Helpers;
 namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
 {
     [Version("3")]
-    public class _003_AddCity : IMigration
+    public class _3_0_0_AddCity : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public void Up(IMongoDatabase database, IClientSessionHandle session)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "from Paris, ");
         }

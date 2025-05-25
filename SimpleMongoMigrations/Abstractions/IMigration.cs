@@ -4,6 +4,6 @@ namespace SimpleMongoMigrations.Abstractions
 {
     public interface IMigration
     {
-        void Up(IMongoDatabase database);
+        void Up(IMongoDatabase database, IClientSessionHandle session);
     }
 }

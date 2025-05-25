@@ -1,29 +1,31 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using MongoDB.Bson.Serialization;
+﻿using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using SimpleMongoMigrations.Abstractions;
-using SimpleMongoMigrations.Attributes;
+using System.Reflection;
 
 namespace SimpleMongoMigrations
 {
+    /// <summary>
+    /// Engine for running MongoDB migrations with optional transaction support.
+    /// </summary>
     public class MigrationEngine
     {
         private readonly string _databaseName;
         private readonly string _connectionString;
+        private readonly Assembly _assembly;
         private readonly IMongoClient _externalClient;
-        private readonly MigrationScanner _migrationScanner;
+        private readonly TransactionScope _transactionScope;
 
         static MigrationEngine()
         {
             BsonSerializer.TryRegisterSerializer(typeof(Version), new VerstionSerializer());
         }
 
-        public MigrationEngine(
+        internal MigrationEngine(
             string connectionString,
             string databaseName,
-            Assembly assembly) : this(databaseName, assembly)
+            TransactionScope transactionScope,
+            Assembly assembly)
+            : this(databaseName, assembly, transactionScope)
         {
             _connectionString = connectionString;
         }
@@ -31,58 +33,42 @@ namespace SimpleMongoMigrations
         public MigrationEngine(
             IMongoClient client,
             string databaseName,
-            Assembly assembly) : this(databaseName, assembly)
+            Assembly assembly,
+            TransactionScope transactionScope = TransactionScope.None)
+            : this(databaseName, assembly, transactionScope)
         {
             _externalClient = client;
         }
 
         private MigrationEngine(
             string databaseName,
-            Assembly assembly)
+            Assembly assembly,
+            TransactionScope transactionScope)
         {
             _databaseName = databaseName;
-            _migrationScanner = new MigrationScanner(assembly);
+            _transactionScope = transactionScope;
+            _assembly = assembly;
         }
 
+        /// <summary>
+        /// Runs all pending migrations using the configured transaction scope.
+        /// </summary>
         public void Run()
         {
+            //MigrationRunner migrationRunner;
             if (_externalClient == null)
             {
                 using (var client = new MongoClient(_connectionString))
                 {
-                    RunInternal(client);
+                    var migrationRunner = new MigrationRunner(client, _databaseName, _assembly, _transactionScope);
+                    migrationRunner.Run();
                 }
             }
             else
             {
-                RunInternal(_externalClient);
-            }
-        }
-
-        private void RunInternal(IMongoClient client)
-        {
-            var database = client.GetDatabase(_databaseName);
-            var migrationRepository = new MigrationRepository(database);
-            var latestMigration = migrationRepository.GetMostRecentAppliedMigration();
-            var latestVersion = latestMigration?.Version ?? Version.Zero;
-
-            var migrationsToRun = _migrationScanner.Migrations
-                .Select(migration => new
-                {
-                    Type = migration,
-                    migration.GetCustomAttribute<VersionAttribute>().Version
-                })
-                .Where(g => g.Version > latestVersion)
-                .ToList();
-
-            foreach (var migrationType in migrationsToRun.OrderBy(g => g.Version).Select(g => g.Type))
-            {
-                var migration = (IMigration)Activator.CreateInstance(migrationType);
-                migration.Up(database);
-                migrationRepository.SaveMigration(
-                    migrationType.GetCustomAttribute<VersionAttribute>().Version,
-                    migrationType.GetCustomAttribute<NameAttribute>()?.Name);
-            }
+                var migrationRunner = new MigrationRunner(_externalClient, _databaseName, _assembly, _transactionScope);
+                migrationRunner.Run();
+            }           
         }
     }
 }
