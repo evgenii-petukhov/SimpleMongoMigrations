@@ -50,7 +50,10 @@ namespace SimpleMongoMigrations
                 .Select(g => g.Type)
                 .ToList();
 
-            if (_transactionSupportChecker.IsTransactionSupported)
+            var transactionSupported = await _transactionSupportChecker.IsTransactionSupportedAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (transactionSupported)
             {
                 switch (_transactionScope)
                 {

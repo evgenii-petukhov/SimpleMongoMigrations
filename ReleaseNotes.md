@@ -2,6 +2,12 @@
 
 ---
 
+### v1.0.13
+
+- Added asynchronous support to TransactionSupportChecker.
+
+---
+
 ### v1.0.12
 
 - Added support for passing an existing `MongoClient` to `MigrationEngineBuilder`.
