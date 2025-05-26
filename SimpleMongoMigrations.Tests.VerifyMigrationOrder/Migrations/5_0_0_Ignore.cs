@@ -11,9 +11,9 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Ignore]
     public class _5_0_0_Ignore : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            MongoHelper.AppendTextToAllPersonsData(database, "ignore");
+            return MongoHelper.AppendTextToAllPersonsDataAsync(database, "ignore", cancellationToken);
         }
     }
 }

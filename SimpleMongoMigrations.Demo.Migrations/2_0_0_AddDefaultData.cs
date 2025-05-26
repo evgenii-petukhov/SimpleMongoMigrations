@@ -3,12 +3,14 @@ using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
 using SimpleMongoMigrations.Demo.Models;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("1.0.0")]
+    [Version("2.0.0")]
     [Name("Populates the City collection with sample data")]
-    public class _1_0_0_AddDefaultData : ITransactionalMigration
+    public class _2_0_0_AddDefaultData : ITransactionalMigration
     {
         private readonly List<City> _cities = new List<City>
         {
@@ -39,14 +41,24 @@ namespace SimpleMongoMigrations.Demo.Migrations
             }
         };
 
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(
+            IMongoDatabase database,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).InsertMany(_cities);
+            return database.GetCollection<City>(nameof(City)).InsertManyAsync(
+                _cities,
+                cancellationToken: cancellationToken);
         }
 
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public Task UpAsync(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).InsertMany(session, _cities);
+            return database.GetCollection<City>(nameof(City)).InsertManyAsync(
+                session,
+                _cities,
+                cancellationToken: cancellationToken);
         }
     }
 }

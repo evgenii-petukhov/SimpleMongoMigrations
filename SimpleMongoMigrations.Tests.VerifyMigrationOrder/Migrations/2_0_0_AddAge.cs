@@ -9,9 +9,9 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds age")]
     public class _2_0_0_AddAge : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            MongoHelper.AppendTextToAllPersonsData(database, "28 y.o., ");
+            return MongoHelper.AppendTextToAllPersonsDataAsync(database, "28 y.o., ", cancellationToken);
         }
     }
 }

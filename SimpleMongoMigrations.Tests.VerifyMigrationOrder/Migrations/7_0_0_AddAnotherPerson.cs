@@ -8,12 +8,12 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds another person")]
     public class _7_0_0_AddAnotherPerson : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            database.GetCollection<Person>(nameof(Person)).InsertOne(new Person
+            return database.GetCollection<Person>(nameof(Person)).InsertOneAsync(new Person
             {
                 Data = "Lucas, "
-            });
+            }, cancellationToken: cancellationToken);
         }
     }
 }

@@ -9,9 +9,9 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Sets status")]
     public class _8_0_0_SetStatus : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            MongoHelper.AppendTextToAllPersonsData(database, "married");
+            return MongoHelper.AppendTextToAllPersonsDataAsync(database, "married", cancellationToken);
         }
     }
 }

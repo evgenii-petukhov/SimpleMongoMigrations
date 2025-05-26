@@ -68,12 +68,12 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
         }
 
         [Test]
-        public void Run_AppliesMigrationsInCorrectOrderAndIgnoresUnversioned()
+        public async Task RunAsync_AppliesMigrationsInCorrectOrderAndIgnoresUnversioned()
         {
             // Arrange
 
             // Act
-            _migrationEngine.Run();
+            await _migrationEngine.RunAsync(default);
 
             // Assert
             _migrationCollection
@@ -101,7 +101,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
         }
 
         [Test]
-        public void Run_AppliesOnlyMissingVersionedMigrations_WhenSomeAlreadyApplied()
+        public async Task RunAsync_AppliesOnlyMissingVersionedMigrations_WhenSomeAlreadyApplied()
         {
             // Arrange
             _migrationCollection.InsertMany(_migrations.Take(2).Select(m =>
@@ -118,7 +118,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
 
             // Act
 
-            _migrationEngine.Run();
+            await _migrationEngine.RunAsync(default);
 
             // Assert
             _migrationCollection
@@ -153,7 +153,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
         }
 
         [Test]
-        public void Run_DoesNotReapplyMigrations_WhenAllAreAlreadyApplied()
+        public async Task RunAsync_DoesNotReapplyMigrations_WhenAllAreAlreadyApplied()
         {
             // Arrange
             var appliedMigrations = _migrations
@@ -186,7 +186,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
 
             // Act
 
-            _migrationEngine.Run();
+            await _migrationEngine.RunAsync(default);
 
             // Assert
             _migrationCollection

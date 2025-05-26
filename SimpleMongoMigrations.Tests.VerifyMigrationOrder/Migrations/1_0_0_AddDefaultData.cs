@@ -8,12 +8,12 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds default data")]
     public class _1_0_0_AddDefaultData : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            database.GetCollection<Person>(nameof(Person)).InsertOne(new Person
+            return database.GetCollection<Person>(nameof(Person)).InsertOneAsync(new Person
             {
                 Data = "Olivia, "
-            });
+            }, cancellationToken: cancellationToken);
         }
     }
 }

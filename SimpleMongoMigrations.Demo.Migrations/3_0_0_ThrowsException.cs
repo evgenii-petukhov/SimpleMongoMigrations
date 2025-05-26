@@ -1,6 +1,8 @@
 ﻿using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
@@ -9,7 +11,7 @@ namespace SimpleMongoMigrations.Demo.Migrations
     [Ignore]
     public class _3_0_0_ThrowsException : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
             throw new System.Exception("This migration is not implemented yet. Please implement it before running the migrations.");
         }

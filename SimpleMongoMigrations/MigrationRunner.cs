@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations
 {
@@ -31,9 +33,10 @@ namespace SimpleMongoMigrations
             _transactionSupportChecker = new TransactionSupportChecker(_client);
         }
 
-        public void Run()
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
-            var latestMigration = _migrationRepository.GetMostRecentAppliedMigration();
+            var latestMigration = await _migrationRepository.GetMostRecentAppliedMigrationAsync(cancellationToken)
+                .ConfigureAwait(false);
             var latestVersion = latestMigration?.Version ?? Version.Zero;
 
             var migrationsToRun = _migrationScanner.Migrations
@@ -51,89 +54,114 @@ namespace SimpleMongoMigrations
             {
                 switch (_transactionScope)
                 {
-                    case TransactionScope.AllMigrations:
-                        ApplyMigrationsInSingleTransaction(migrationsToRun);
+                    case TransactionScope.SingleTransaction:
+                        await ApplyMigrationsInSingleTransactionAsync(migrationsToRun, cancellationToken)
+                            .ConfigureAwait(false);
                         break;
-                    case TransactionScope.SingleMigration:
-                        ApplyMigrationsInSeparateTransactions(migrationsToRun);
+                    case TransactionScope.PerMigration:
+                        await ApplyMigrationsInSeparateTransactionsAsync(migrationsToRun, cancellationToken)
+                            .ConfigureAwait(false);
                         break;
-                    case TransactionScope.None:
+                    case TransactionScope.NoTransaction:
                     default:
-                        ApplyMigrationsWithoutTransaction(migrationsToRun);
+                        await ApplyMigrationsWithoutTransactionAsync(migrationsToRun, cancellationToken)
+                            .ConfigureAwait(false);
                         break;
                 }
             }
             else
             {
-                ApplyMigrationsWithoutTransaction(migrationsToRun);
+                await ApplyMigrationsWithoutTransactionAsync(migrationsToRun, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
-        private void ApplyMigrationsInSingleTransaction(IEnumerable<Type> migrationsToRun)
+        private async Task ApplyMigrationsInSingleTransactionAsync(
+            IEnumerable<Type> migrationsToRun,
+            CancellationToken cancellationToken)
         {
-            using (var session = _client.StartSession())
+            using (var session = await _client.StartSessionAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false))
             {
                 session.StartTransaction();
                 try
                 {
                     foreach (var migrationType in migrationsToRun)
                     {
-                        ApplyMigration(session, migrationType);
+                        await ApplyMigrationAsync(session, migrationType, cancellationToken)
+                            .ConfigureAwait(false);
                     }
-                    session.CommitTransaction();
+                    await session.CommitTransactionAsync(cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 catch
                 {
-                    session.AbortTransaction();
+                    await session.AbortTransactionAsync(cancellationToken)
+                        .ConfigureAwait(false);
                     throw;
                 }
             }
         }
 
-        private void ApplyMigrationsInSeparateTransactions(IEnumerable<Type> migrationsToRun)
+        private async Task ApplyMigrationsInSeparateTransactionsAsync(
+            IEnumerable<Type> migrationsToRun,
+            CancellationToken cancellationToken)
         {
             foreach (var migrationType in migrationsToRun)
             {
-                using (var session = _client.StartSession())
+                using (var session = await _client.StartSessionAsync(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false))
                 {
                     session.StartTransaction();
                     try
                     {
-                        ApplyMigration(session, migrationType);
-                        session.CommitTransaction();
+                        await ApplyMigrationAsync(session, migrationType, cancellationToken)
+                            .ConfigureAwait(false);
+                        await session.CommitTransactionAsync(cancellationToken)
+                            .ConfigureAwait(false);
                     }
                     catch
                     {
-                        session.AbortTransaction();
+                        await session.AbortTransactionAsync(cancellationToken)
+                            .ConfigureAwait(false);
                         throw;
                     }
                 }
             }
         }
 
-        private void ApplyMigrationsWithoutTransaction(IEnumerable<Type> migrationsToRun)
+        private async Task ApplyMigrationsWithoutTransactionAsync(
+            IEnumerable<Type> migrationsToRun,
+            CancellationToken cancellationToken)
         {
             foreach (var migrationType in migrationsToRun)
             {
-                ApplyMigration(null, migrationType);
+                await ApplyMigrationAsync(null, migrationType, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
-        private void ApplyMigration(IClientSessionHandle session, Type migrationType)
+        private async Task ApplyMigrationAsync(
+            IClientSessionHandle session,
+            Type migrationType,
+            CancellationToken cancellationToken)
         {
             var migration = (IMigration)Activator.CreateInstance(migrationType);
             if (session != null && migration is ITransactionalMigration transactionalMigration)
             {
-                transactionalMigration.Up(_database, session);
+                await transactionalMigration.UpAsync(_database, session, cancellationToken)
+                    .ConfigureAwait(false);
             }
             else
             {
-                migration.Up(_database);
+                await migration.UpAsync(_database, cancellationToken)
+                    .ConfigureAwait(false);
             }
-            _migrationRepository.SaveMigration(
+            await _migrationRepository.SaveMigrationAsync(
                 session,
                 migrationType.GetCustomAttribute<VersionAttribute>().Version,
-                migrationType.GetCustomAttribute<NameAttribute>()?.Name);
+                migrationType.GetCustomAttribute<NameAttribute>()?.Name,
+                cancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations
 {
@@ -34,7 +36,7 @@ namespace SimpleMongoMigrations
             IMongoClient client,
             string databaseName,
             Assembly assembly,
-            TransactionScope transactionScope = TransactionScope.None)
+            TransactionScope transactionScope = TransactionScope.NoTransaction)
             : this(databaseName, assembly, transactionScope)
         {
             _externalClient = client;
@@ -53,21 +55,20 @@ namespace SimpleMongoMigrations
         /// <summary>
         /// Runs all pending migrations using the configured transaction scope.
         /// </summary>
-        public void Run()
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
-            //MigrationRunner migrationRunner;
             if (_externalClient == null)
             {
                 using (var client = new MongoClient(_connectionString))
                 {
                     var migrationRunner = new MigrationRunner(client, _databaseName, _assembly, _transactionScope);
-                    migrationRunner.Run();
+                    await migrationRunner.RunAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
             else
             {
                 var migrationRunner = new MigrationRunner(_externalClient, _databaseName, _assembly, _transactionScope);
-                migrationRunner.Run();
+                await migrationRunner.RunAsync(cancellationToken).ConfigureAwait(false);
             }           
         }
     }

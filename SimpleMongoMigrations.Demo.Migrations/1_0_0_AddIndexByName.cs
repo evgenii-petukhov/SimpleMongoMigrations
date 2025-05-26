@@ -2,34 +2,43 @@
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
 using SimpleMongoMigrations.Demo.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("4")]
+    [Version("1")]
     [Name("Adds a unique index by name")]
-    public class _4_0_0_AddIndexByName : ITransactionalMigration
+    public class _1_0_0_AddIndexByName : ITransactionalMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(
+            IMongoDatabase database,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+            return database.GetCollection<City>(nameof(City)).Indexes.CreateOneAsync(
                 new CreateIndexModel<City>(
                     Builders<City>.IndexKeys.Ascending(x => x.Name),
                     new CreateIndexOptions
                     {
                         Unique = true
-                    }));
+                    }),
+                cancellationToken: cancellationToken);
         }
 
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public Task UpAsync(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+            return database.GetCollection<City>(nameof(City)).Indexes.CreateOneAsync(
                 session,
                 new CreateIndexModel<City>(
                     Builders<City>.IndexKeys.Ascending(x => x.Name),
                     new CreateIndexOptions
                     {
                         Unique = true
-                    }));
+                    }),
+                cancellationToken: cancellationToken);
         }
     }
 }

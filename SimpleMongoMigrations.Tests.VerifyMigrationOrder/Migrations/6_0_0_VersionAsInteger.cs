@@ -9,9 +9,9 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds preferences")]
     public class _6_0_0_VersionAsInteger : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            MongoHelper.AppendTextToAllPersonsData(database, "loves cars, ");
+            return MongoHelper.AppendTextToAllPersonsDataAsync(database, "loves cars, ", cancellationToken);
         }
     }
 }

@@ -6,9 +6,9 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
 {
     public class _4_0_0_HasNoVersion : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken)
         {
-            MongoHelper.AppendTextToAllPersonsData(database, "no version");
+            return MongoHelper.AppendTextToAllPersonsDataAsync(database, "no version", cancellationToken);
         }
     }
 }
