@@ -34,6 +34,8 @@ See demos for [.NET 6](https://github.com/evgenii-petukhov/SimpleMongoMigrations
 
 You can also find migration samples in the [demo](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.Migrations) and [test](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.VerifyMigrationOrder/Migrations) projects.
 
+The example below creates a new index on the `Name` field in the `City` collection. Each migration implements either the `IMigration` or `ITransactionalMigration` interface. Use `ITransactionalMigration` only if your environment supports transactions. Standalone MongoDB instances do not support transactions. The only difference between these interfaces is that `ITransactionalMigration` provides an `Up` method with a session parameter, which should be passed to every database operation to enable rollback in case of failure. If the migration engine detects that your environment doesn't support transactions, the `Up` method with a single parameter will be called as a fallback.
+
 ```csharp
 using MongoDB.Driver;
 using SimpleMongoMigrations.Abstractions;
@@ -46,10 +48,9 @@ namespace SimpleMongoMigrations.Demo.Migrations
     [Name("Adds a unique index by name")]
     public class _4_0_0_AddIndexByName : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
-                // session, // Uncomment this line if you specified transactionScope in your settings and want to use transactions
                 new CreateIndexModel<City>(
                     Builders<City>.IndexKeys.Ascending(x => x.Name),
                     new CreateIndexOptions
@@ -100,32 +101,58 @@ MigrationEngineBuilder
     .Run();
 ```
 
-When using either of the last two options, an instance of `IClientSessionHandle` is passed to the `Up` method of your migrations. You should pass this session to all database operations, for example:
+Use `ITransactionalMigration` only if your environment supports transactions in combination with the `SingleMigration` or `AllMigrations` options. An instance of `IClientSessionHandle` is passed to the `Up` method of your migrations. You should pass this session to all database operations. If the migration engine detects that your environment doesn't support transactions, the `Up` method with a single parameter will be called as a fallback.
 
 ```csharp
-public void Up(IMongoDatabase database, IClientSessionHandle session)
+[Version("4")]
+[Name("Adds a unique index by name")]
+public class _4_0_0_AddIndexByName : ITransactionalMigration
 {
-    database.GetCollection<City>(nameof(City)).UpdateOne(
-        session,
-        Builders<City>.Filter.Eq(x => x.Name, "London"),
-        Builders<City>.Update.Set(x => x.CountryCode, "GB"));
+    public void Up(IMongoDatabase database)
+    {
+        database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+            new CreateIndexModel<City>(
+                Builders<City>.IndexKeys.Ascending(x => x.Name),
+                new CreateIndexOptions
+                {
+                    Unique = true
+                }));
+    }
+
+    public void Up(IMongoDatabase database, IClientSessionHandle session)
+    {
+        database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+            session,
+            new CreateIndexModel<City>(
+                Builders<City>.IndexKeys.Ascending(x => x.Name),
+                new CreateIndexOptions
+                {
+                    Unique = true
+                }));
+    }
 }
 ```
 
-> **Note:** Multi-document transactions are supported only on certain MongoDB deployments:
-> - **Replica Set** (MongoDB 4.0+)
-> - **Sharded Cluster** (MongoDB 4.2+)
-> - **MongoDB Atlas** (M0/M2/M5 Free/Shared and M10+ Dedicated Clusters)
-> - **Azure Cosmos DB** (MongoDB API v4.0+)
->
-> Standalone MongoDB instances do **not** support multi-document transactions. The migration engine automatically detects whether transactions are supported. If transactions are not supported, the transaction scope specified in `WithTransactionScope` will be ignored, and the `session` parameter of the `Up` method will be `null`.
->
-> **Limitations:**  
-> - All operations in a transaction must be on collections within the same database.
-> - Transactions have duration and size limits (e.g., 60 seconds and 16MB in MongoDB).
-> - Cosmos DB supports multi-document transactions only within a single partition key value.
->
-> Ensure your migration logic is compatible with these limitations and always test transactional migrations in your target environment.
+**Note:** Multi-document transactions are supported only on certain MongoDB deployments:
+
+| MongoDB Deployment Type                | Supports Transactions | Notes                                                            |
+| -------------------------------------- | :-------------------: | ---------------------------------------------------------------- |
+| Standalone MongoDB                     |         ❌ No         | Single-node deployments do not support transactions.             |
+| Replica Set (MongoDB 4.0+)             |        ✅ Yes         | Multi-document transactions supported starting with MongoDB 4.0. |
+| Sharded Cluster (MongoDB 4.2+)         |        ✅ Yes         | Requires MongoDB 4.2+ and sharded collections.                   |
+| MongoDB Atlas Free/Shared (M0/M2/M5)   |        ✅ Yes         | Uses replica sets by default. Transactions are available.        |
+| MongoDB Atlas Dedicated Cluster (M10+) |        ✅ Yes         | Fully supports transactions.                                     |
+| Azure Cosmos DB (MongoDB API v4.0+)    |   ✅ Yes (limited)    | Only within the same partition key; no cross-partition support.  |
+
+Standalone MongoDB instances do **not** support multi-document transactions. The migration engine automatically detects whether transactions are supported. If transactions are not supported, the transaction scope specified in `WithTransactionScope` will be ignored, and the `session` parameter of the `Up` method will be `null`.
+
+**Limitations:**
+
+- All operations in a transaction must be on collections within the same database.
+- Transactions have duration and size limits (e.g., 60 seconds and 16MB in MongoDB).
+- Cosmos DB supports multi-document transactions only within a single partition key value.
+
+Ensure your migration logic is compatible with these limitations and always test transactional migrations in your target environment.
 
 ## License
 

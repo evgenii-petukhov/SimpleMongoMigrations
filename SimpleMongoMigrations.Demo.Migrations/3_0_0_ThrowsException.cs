@@ -6,6 +6,7 @@ namespace SimpleMongoMigrations.Demo.Migrations
 {
     [Version("3.0.0")]
     [Name("Adds a unique index by name")]
+    [Ignore]
     public class _3_0_0_ThrowsException : IMigration
     {
         public void Up(IMongoDatabase database)
