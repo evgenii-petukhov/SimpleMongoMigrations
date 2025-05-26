@@ -26,30 +26,14 @@ namespace SimpleMongoMigrations
             string connectionString,
             string databaseName,
             TransactionScope transactionScope,
-            Assembly assembly)
-            : this(databaseName, assembly, transactionScope)
+            Assembly assembly,
+            IMongoClient client)
         {
             _connectionString = connectionString;
-        }
-
-        public MigrationEngine(
-            IMongoClient client,
-            string databaseName,
-            Assembly assembly,
-            TransactionScope transactionScope = TransactionScope.NoTransaction)
-            : this(databaseName, assembly, transactionScope)
-        {
-            _externalClient = client;
-        }
-
-        private MigrationEngine(
-            string databaseName,
-            Assembly assembly,
-            TransactionScope transactionScope)
-        {
             _databaseName = databaseName;
             _transactionScope = transactionScope;
             _assembly = assembly;
+            _externalClient = client;
         }
 
         /// <summary>

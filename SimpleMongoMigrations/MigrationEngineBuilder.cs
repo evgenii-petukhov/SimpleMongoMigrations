@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using MongoDB.Driver;
+using System.Reflection;
 
 namespace SimpleMongoMigrations
 {
@@ -11,6 +12,7 @@ namespace SimpleMongoMigrations
         private string _databaseName;
         private TransactionScope _transactionScope;
         private Assembly _assembly;
+        private IMongoClient _client;
 
         /// <summary>
         /// Creates a new instance of <see cref="MigrationEngineBuilder"/>.
@@ -62,12 +64,23 @@ namespace SimpleMongoMigrations
         }
 
         /// <summary>
+        /// Sets a custom <see cref="IMongoClient"/> instance to be used by the migration engine.
+        /// </summary>
+        /// <param name="client">The MongoDB client instance.</param>
+        /// <returns>The current <see cref="MigrationEngineBuilder"/> instance.</returns>
+        public MigrationEngineBuilder WithClient(IMongoClient client)
+        {
+            _client = client;
+            return this;
+        }
+
+        /// <summary>
         /// Builds a configured <see cref="MigrationEngine"/> instance.
         /// </summary>
         /// <returns>A new <see cref="MigrationEngine"/> instance.</returns>
         public MigrationEngine Build()
         {
-            return new MigrationEngine(_connectionString, _databaseName, _transactionScope, _assembly);
+            return new MigrationEngine(_connectionString, _databaseName, _transactionScope, _assembly, _client);
         }
     }
 }
