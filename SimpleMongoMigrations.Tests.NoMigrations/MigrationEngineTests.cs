@@ -23,7 +23,12 @@ namespace SimpleMongoMigrations.Tests.NoMigrations
             _client = new MongoClient(_runner.ConnectionString);
             _database = _client.GetDatabase(TestDbName);
             _migrationCollection = _database.GetCollection<Migration>(MigrationConstants.MigrationCollectionName);
-            _migrationEngine = new MigrationEngine(_client, TestDbName, typeof(object).Assembly);
+            _migrationEngine = MigrationEngineBuilder
+                .Create()
+                .WithDatabase(TestDbName)
+                .WithAssembly(typeof(object).Assembly)
+                .WithClient(_client)
+                .Build();
         }
 
         [TearDown]

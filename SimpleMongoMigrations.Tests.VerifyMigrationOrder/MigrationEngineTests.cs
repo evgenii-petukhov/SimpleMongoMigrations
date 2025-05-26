@@ -57,7 +57,12 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder
             _client = new MongoClient(_runner.ConnectionString);
             _database = _client.GetDatabase(TestDbName);
             _migrationCollection = _database.GetCollection<Migration>(MigrationConstants.MigrationCollectionName);
-            _migrationEngine = new MigrationEngine(_client, TestDbName, typeof(Person).Assembly);
+            _migrationEngine = MigrationEngineBuilder
+                .Create()
+                .WithDatabase(TestDbName)
+                .WithAssembly(typeof(Person).Assembly)
+                .WithClient(_client)
+                .Build();
         }
 
         [TearDown]

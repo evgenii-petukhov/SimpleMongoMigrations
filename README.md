@@ -17,13 +17,13 @@ I decided to create a new NuGet package instead of using the original MongoDBMig
 The migration engine can be set up and configured with a fluent API:
 
 ```csharp
-MigrationEngineBuilder
+await MigrationEngineBuilder
     .Create()
     .WithConnectionString("mongodb://localhost:27017") // connection string
     .WithDatabase("TestDB") // database name
     .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddDefaultData))) // assembly to scan for migrations
     .Build()
-    .Run();
+    .RunAsync();
 ```
 
 Unlike [MongoDBMigrations](https://bitbucket.org/i_am_a_kernel/mongodbmigrations/), the `Run` method does not expect a version. All migrations will be executed unless they are marked with the `Ignore` attribute.
