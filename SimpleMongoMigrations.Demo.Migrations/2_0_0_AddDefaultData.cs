@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("1.0.0")]
+    [Version("2.0.0")]
     [Name("Populates the City collection with sample data")]
-    public class _1_0_0_AddDefaultData : ITransactionalMigration
+    public class _2_0_0_AddDefaultData : ITransactionalMigration
     {
         private readonly List<City> _cities = new List<City>
         {

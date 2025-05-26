@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("4")]
+    [Version("1")]
     [Name("Adds a unique index by name")]
-    public class _4_0_0_AddIndexByName : ITransactionalMigration
+    public class _1_0_0_AddIndexByName : ITransactionalMigration
     {
         public Task UpAsync(
             IMongoDatabase database,

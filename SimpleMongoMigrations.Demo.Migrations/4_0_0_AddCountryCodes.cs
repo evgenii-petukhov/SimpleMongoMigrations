@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("2.0.0")]
+    [Version("4.0.0")]
     [Name("Adds a country code for each entry of the City collection")]
-    public class _2_0_0_AddCountryCodes : ITransactionalMigration
+    public class _4_0_0_AddCountryCodes : ITransactionalMigration
     {
         public async Task UpAsync(
             IMongoDatabase database,
