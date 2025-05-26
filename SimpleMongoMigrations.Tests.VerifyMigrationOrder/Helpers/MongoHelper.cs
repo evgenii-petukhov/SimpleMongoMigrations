@@ -4,11 +4,16 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Helpers
 {
     public static class MongoHelper
     {
-        public static void AppendTextToAllPersonsData(IMongoDatabase database, string textToAppend)
+        public static async Task AppendTextToAllPersonsDataAsync(
+            IMongoDatabase database,
+            string textToAppend,
+            CancellationToken cancellationToken)
         {
             var collection = database.GetCollection<Person>(nameof(Person));
 
-            var people = collection.Find(Builders<Person>.Filter.Empty).ToList();
+            var people = await collection.Find(Builders<Person>.Filter.Empty)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             var writes = people.Select(person =>
             {
@@ -19,7 +24,8 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Helpers
                 );
             }).ToList();
 
-            collection.BulkWrite(writes);
+            await collection.BulkWriteAsync(writes, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

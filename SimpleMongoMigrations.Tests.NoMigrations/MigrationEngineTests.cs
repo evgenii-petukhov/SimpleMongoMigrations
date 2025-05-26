@@ -34,12 +34,12 @@ namespace SimpleMongoMigrations.Tests.NoMigrations
         }
 
         [Test]
-        public void Run_ShouldNotThrow_WhenNoMigrations()
+        public async Task RunAsync_ShouldNotThrow_WhenNoMigrations()
         {
             // Arrange
 
             // Act
-            _migrationEngine.Run();
+            await _migrationEngine.RunAsync(default);
 
             // Assert
             _migrationCollection.CountDocuments(Builders<Migration>.Filter.Empty).Should().Be(0);

@@ -3,6 +3,8 @@ using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
 using SimpleMongoMigrations.Demo.Models;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
@@ -39,14 +41,24 @@ namespace SimpleMongoMigrations.Demo.Migrations
             }
         };
 
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(
+            IMongoDatabase database,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).InsertMany(_cities);
+            return database.GetCollection<City>(nameof(City)).InsertManyAsync(
+                _cities,
+                cancellationToken: cancellationToken);
         }
 
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public Task UpAsync(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).InsertMany(session, _cities);
+            return database.GetCollection<City>(nameof(City)).InsertManyAsync(
+                session,
+                _cities,
+                cancellationToken: cancellationToken);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using MongoDB.Driver;
 using SimpleMongoMigrations.Models;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations
 {
@@ -13,29 +15,30 @@ namespace SimpleMongoMigrations
             _migrationCollection = database.GetCollection<Migration>(MigrationConstants.MigrationCollectionName);
         }
 
-        public Migration GetMostRecentAppliedMigration()
+        public Task<Migration> GetMostRecentAppliedMigrationAsync(CancellationToken cancellationToken)
         {
             return _migrationCollection
                 .Find(Builders<Migration>.Filter.Eq(x => x.IsUp, true))
                 .Sort(Builders<Migration>.Sort.Descending(x => x.Version))
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public void SaveMigration(IClientSessionHandle session, Version version, string name)
+        public Task SaveMigrationAsync(
+            IClientSessionHandle session,
+            Version version, string name,
+            CancellationToken cancellationToken)
         {
-            if (session == null)
-            {
-                SaveMigrationInternal(version, name);
-            }
-            else
-            {
-                SaveMigrationInternal(session, version, name);
-            }
+            return session == null
+                ? SaveMigrationInternalAsync(version, name, cancellationToken)
+                : SaveMigrationInternalAsync(session, version, name, cancellationToken);
         }
 
-        private void SaveMigrationInternal(IClientSessionHandle session, Version version, string name)
+        private Task SaveMigrationInternalAsync(
+            IClientSessionHandle session,
+            Version version, string name,
+            CancellationToken cancellationToken)
         {
-            _migrationCollection.InsertOne(
+            return _migrationCollection.InsertOneAsync(
                 session,
                 new Migration
                 {
@@ -43,19 +46,22 @@ namespace SimpleMongoMigrations
                     Version = version,
                     IsUp = true,
                     TimeStamp = DateTime.UtcNow
-                });
+                }, cancellationToken: cancellationToken);
         }
 
-        private void SaveMigrationInternal(Version version, string name)
+        private Task SaveMigrationInternalAsync(
+            Version version,
+            string name,
+            CancellationToken cancellationToken)
         {
-            _migrationCollection.InsertOne(
+            return _migrationCollection.InsertOneAsync(
                 new Migration
                 {
                     Name = name,
                     Version = version,
                     IsUp = true,
                     TimeStamp = DateTime.UtcNow
-                });
+                }, cancellationToken: cancellationToken);
         }
     }
 }

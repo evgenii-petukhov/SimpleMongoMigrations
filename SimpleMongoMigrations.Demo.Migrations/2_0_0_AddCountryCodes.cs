@@ -2,6 +2,8 @@
 using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Attributes;
 using SimpleMongoMigrations.Demo.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
@@ -9,55 +11,80 @@ namespace SimpleMongoMigrations.Demo.Migrations
     [Name("Adds a country code for each entry of the City collection")]
     public class _2_0_0_AddCountryCodes : ITransactionalMigration
     {
-        public void Up(IMongoDatabase database)
+        public async Task UpAsync(
+            IMongoDatabase database,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 Builders<City>.Filter.Eq(x => x.Name, "London"),
-                Builders<City>.Update.Set(x => x.CountryCode, "GB"));
+                Builders<City>.Update.Set(x => x.CountryCode, "GB"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 Builders<City>.Filter.Eq(x => x.Name, "Milan"),
-                Builders<City>.Update.Set(x => x.CountryCode, "IT"));
+                Builders<City>.Update.Set(x => x.CountryCode, "IT"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 Builders<City>.Filter.Eq(x => x.Name, "Barcelona"),
-                Builders<City>.Update.Set(x => x.CountryCode, "SP"));
+                Builders<City>.Update.Set(x => x.CountryCode, "SP"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 Builders<City>.Filter.Eq(x => x.Name, "Berlin"),
-                Builders<City>.Update.Set(x => x.CountryCode, "DE"));
+                Builders<City>.Update.Set(x => x.CountryCode, "DE"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 Builders<City>.Filter.Eq(x => x.Name, "Paris"),
-                Builders<City>.Update.Set(x => x.CountryCode, "FR"));
+                Builders<City>.Update.Set(x => x.CountryCode, "FR"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public async Task UpAsync(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 session,
                 Builders<City>.Filter.Eq(x => x.Name, "London"),
-                Builders<City>.Update.Set(x => x.CountryCode, "GB"));
+                Builders<City>.Update.Set(x => x.CountryCode, "GB"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 session,
                 Builders<City>.Filter.Eq(x => x.Name, "Milan"),
-                Builders<City>.Update.Set(x => x.CountryCode, "IT"));
+                Builders<City>.Update.Set(x => x.CountryCode, "IT"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 session,
                 Builders<City>.Filter.Eq(x => x.Name, "Barcelona"),
-                Builders<City>.Update.Set(x => x.CountryCode, "SP"));
+                Builders<City>.Update.Set(x => x.CountryCode, "SP"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 session,
                 Builders<City>.Filter.Eq(x => x.Name, "Berlin"),
-                Builders<City>.Update.Set(x => x.CountryCode, "DE"));
+                Builders<City>.Update.Set(x => x.CountryCode, "DE"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            database.GetCollection<City>(nameof(City)).UpdateOne(
+            await database.GetCollection<City>(nameof(City)).UpdateOneAsync(
                 session,
                 Builders<City>.Filter.Eq(x => x.Name, "Paris"),
-                Builders<City>.Update.Set(x => x.CountryCode, "FR"));
+                Builders<City>.Update.Set(x => x.CountryCode, "FR"),
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

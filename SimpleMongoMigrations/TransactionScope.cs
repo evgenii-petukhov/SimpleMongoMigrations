@@ -8,16 +8,16 @@
         /// <summary>
         /// Apply migrations without transactions.
         /// </summary>
-        None,
+        NoTransaction,
 
         /// <summary>
         /// Apply each migration in a separate transaction.
         /// </summary>
-        SingleMigration,
+        PerMigration,
 
         /// <summary>
         /// Apply all migrations in a single transaction.
         /// </summary>
-        AllMigrations
+        SingleTransaction
     }
 }

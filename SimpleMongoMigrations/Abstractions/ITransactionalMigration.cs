@@ -1,9 +1,11 @@
 ﻿using MongoDB.Driver;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations.Abstractions
 {
     public interface ITransactionalMigration : IMigration
     {
-        void Up(IMongoDatabase database, IClientSessionHandle session);
+        Task UpAsync(IMongoDatabase database, IClientSessionHandle session, CancellationToken cancellationToken);
     }
 }
