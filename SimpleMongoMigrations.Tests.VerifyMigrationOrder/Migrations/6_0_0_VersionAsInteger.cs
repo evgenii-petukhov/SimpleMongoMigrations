@@ -9,7 +9,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds preferences")]
     public class _6_0_0_VersionAsInteger : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "loves cars, ");
         }

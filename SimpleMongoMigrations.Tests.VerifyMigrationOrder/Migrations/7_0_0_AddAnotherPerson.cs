@@ -8,7 +8,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds another person")]
     public class _7_0_0_AddAnotherPerson : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             database.GetCollection<Person>(nameof(Person)).InsertOne(new Person
             {

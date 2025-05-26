@@ -8,7 +8,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds default data")]
     public class _1_0_0_AddDefaultData : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             database.GetCollection<Person>(nameof(Person)).InsertOne(new Person
             {

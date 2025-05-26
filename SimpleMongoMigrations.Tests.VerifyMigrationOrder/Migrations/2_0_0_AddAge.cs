@@ -9,7 +9,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Adds age")]
     public class _2_0_0_AddAge : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "28 y.o., ");
         }

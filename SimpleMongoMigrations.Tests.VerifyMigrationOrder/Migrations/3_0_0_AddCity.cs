@@ -8,7 +8,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Version("3")]
     public class _3_0_0_AddCity : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "from Paris, ");
         }

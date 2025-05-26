@@ -6,7 +6,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
 {
     public class _4_0_0_HasNoVersion : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "no version");
         }
