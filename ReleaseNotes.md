@@ -2,6 +2,11 @@
 
 ---
 
+### v1.0.10
+- Improved transaction support.
+
+---
+
 ### v1.0.9
 - Introduced a fluent API via `MigrationEngineBuilder` for flexible `MigrationEngine` configuration.
 - Added transaction support with MongoDB sessions for transaction management.

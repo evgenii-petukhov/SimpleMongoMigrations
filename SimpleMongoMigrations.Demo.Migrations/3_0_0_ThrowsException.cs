@@ -8,7 +8,7 @@ namespace SimpleMongoMigrations.Demo.Migrations
     [Name("Adds a unique index by name")]
     public class _3_0_0_ThrowsException : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             throw new System.Exception("This migration is not implemented yet. Please implement it before running the migrations.");
         }

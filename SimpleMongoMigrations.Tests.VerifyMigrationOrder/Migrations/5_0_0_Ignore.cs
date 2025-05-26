@@ -11,7 +11,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Ignore]
     public class _5_0_0_Ignore : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "ignore");
         }

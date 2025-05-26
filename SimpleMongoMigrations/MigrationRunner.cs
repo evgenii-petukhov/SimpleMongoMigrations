@@ -122,7 +122,14 @@ namespace SimpleMongoMigrations
         private void ApplyMigration(IClientSessionHandle session, Type migrationType)
         {
             var migration = (IMigration)Activator.CreateInstance(migrationType);
-            migration.Up(_database, session);
+            if (session != null && migration is ITransactionalMigration transactionalMigration)
+            {
+                transactionalMigration.Up(_database, session);
+            }
+            else
+            {
+                migration.Up(_database);
+            }
             _migrationRepository.SaveMigration(
                 session,
                 migrationType.GetCustomAttribute<VersionAttribute>().Version,

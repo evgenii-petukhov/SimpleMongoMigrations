@@ -9,7 +9,7 @@ namespace SimpleMongoMigrations.Tests.VerifyMigrationOrder.Migrations
     [Name("Sets status")]
     public class _8_0_0_SetStatus : IMigration
     {
-        public void Up(IMongoDatabase database, IClientSessionHandle session)
+        public void Up(IMongoDatabase database)
         {
             MongoHelper.AppendTextToAllPersonsData(database, "married");
         }

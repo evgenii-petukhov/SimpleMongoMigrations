@@ -76,31 +76,31 @@ namespace SimpleMongoMigrations.Tests
         [Version("1.0.0")]
         private class TestMigration1 : IMigration
         {
-            public void Up(IMongoDatabase database, IClientSessionHandle session) { }
+            public void Up(IMongoDatabase database) { }
         }
 
         [Version("2.0.0")]
         private class TestMigration2 : IMigration
         {
-            public void Up(IMongoDatabase database, IClientSessionHandle session) { }
+            public void Up(IMongoDatabase database) { }
         }
 
         [Version("3.0.0")]
         private abstract class AbstractMigration : IMigration
         {
-            public abstract void Up(IMongoDatabase database, IClientSessionHandle session);
+            public abstract void Up(IMongoDatabase database);
         }
 
         private class NoVersionMigration : IMigration
         {
-            public void Up(IMongoDatabase database, IClientSessionHandle session) { }
+            public void Up(IMongoDatabase database) { }
         }
 
         [Ignore]
         [Version("4.0.0")]
         private class IgnoredMigration : IMigration
         {
-            public void Up(IMongoDatabase database, IClientSessionHandle session) { }
+            public void Up(IMongoDatabase database) { }
         }
     }
 }
