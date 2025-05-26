@@ -34,7 +34,7 @@ See demos for [.NET 6](https://github.com/evgenii-petukhov/SimpleMongoMigrations
 
 You can also find migration samples in the [demo](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Demo.Migrations) and [test](https://github.com/evgenii-petukhov/SimpleMongoMigrations/tree/master/SimpleMongoMigrations.Tests.VerifyMigrationOrder/Migrations) projects.
 
-The example below creates a new index on the `Name` field in the `City` collection. Each migration implements either the `IMigration` or `ITransactionalMigration` interface. Use `ITransactionalMigration` only if your environment supports transactions. Standalone MongoDB instances do not support transactions. The only difference between these interfaces is that `ITransactionalMigration` provides an `Up` method with a session parameter, which should be passed to every database operation to enable rollback in case of failure. If the migration engine detects that your environment doesn't support transactions, the `Up` method with a single parameter will be called as a fallback.
+The example below creates a new index on the `Name` field in the `City` collection. Each migration implements either the `IMigration` or `ITransactionalMigration` interface. Use `ITransactionalMigration` only if your environment supports transactions. Standalone MongoDB instances do not support transactions. The only difference between these interfaces is that `ITransactionalMigration` provides an `UpAsync` method with a session parameter, which should be passed to every database operation to enable rollback in case of failure. If the migration engine detects that your environment doesn't support transactions, the `UpAsync` method with a single parameter will be called as a fallback.
 
 ```csharp
 using MongoDB.Driver;
@@ -44,19 +44,22 @@ using SimpleMongoMigrations.Demo.Models;
 
 namespace SimpleMongoMigrations.Demo.Migrations
 {
-    [Version("4")]
+    [Version("1")]
     [Name("Adds a unique index by name")]
-    public class _4_0_0_AddIndexByName : IMigration
+    public class _1_0_0_AddIndexByName : IMigration
     {
-        public void Up(IMongoDatabase database)
+        public Task UpAsync(
+            IMongoDatabase database,
+            CancellationToken cancellationToken)
         {
-            database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+            return database.GetCollection<City>(nameof(City)).Indexes.CreateOneAsync(
                 new CreateIndexModel<City>(
                     Builders<City>.IndexKeys.Ascending(x => x.Name),
                     new CreateIndexOptions
                     {
                         Unique = true
-                    }));
+                    }),
+                cancellationToken: cancellationToken);
         }
     }
 }
@@ -86,49 +89,56 @@ Transactions help ensure your database remains in a consistent state if the migr
 
 To specify how migrations are wrapped in transactions, pass a `TransactionScope` value to `WithTransactionScope` when configuring the `MigrationEngine`. There are three options:
 
-- **None** – Transactions are not used (default).
-- **SingleMigration** – Each migration is wrapped in a separate transaction.
-- **AllMigrations** – All migrations are wrapped in a single transaction.
+- **NoTransaction** – Transactions are not used (default).
+- **PerMigration** – Each migration is wrapped in a separate transaction.
+- **SingleTransaction** – All migrations are wrapped in a single transaction.
 
 ```csharp
-MigrationEngineBuilder
+await MigrationEngineBuilder
     .Create()
-    .WithConnectionString("mongodb://localhost:27017")
-    .WithDatabase("TestDB")
-    .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddDefaultData)))
-    .WithTransactionScope(TransactionScope.AllMigrations) // Optional, can be omitted if not needed
+    .WithConnectionString("mongodb://localhost:27017") // connection string
+    .WithDatabase("TestDB") // database name
+    .WithAssembly(Assembly.GetAssembly(typeof(_1_0_0_AddIndexByName))) // assembly to scan for migrations
+    .WithTransactionScope(TransactionScope.SingleTransaction) // Optional, can be omitted if not needed
     .Build()
-    .Run();
+    .RunAsync(default);
 ```
 
-Use `ITransactionalMigration` only if your environment supports transactions in combination with the `SingleMigration` or `AllMigrations` options. An instance of `IClientSessionHandle` is passed to the `Up` method of your migrations. You should pass this session to all database operations. If the migration engine detects that your environment doesn't support transactions, the `Up` method with a single parameter will be called as a fallback.
+Use `ITransactionalMigration` only if your environment supports transactions in combination with the `SingleMigration` or `AllMigrations` options. An instance of `IClientSessionHandle` is passed to the `UpAsync` method of your migrations. You should pass this session to all database operations. If the migration engine detects that your environment doesn't support transactions, the `UpAsync` method with a single parameter will be called as a fallback.
 
 ```csharp
-[Version("4")]
+[Version("1")]
 [Name("Adds a unique index by name")]
-public class _4_0_0_AddIndexByName : ITransactionalMigration
+public class _1_0_0_AddIndexByName : ITransactionalMigration
 {
-    public void Up(IMongoDatabase database)
+    public Task UpAsync(
+        IMongoDatabase database,
+        CancellationToken cancellationToken)
     {
-        database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+        return database.GetCollection<City>(nameof(City)).Indexes.CreateOneAsync(
             new CreateIndexModel<City>(
                 Builders<City>.IndexKeys.Ascending(x => x.Name),
                 new CreateIndexOptions
                 {
                     Unique = true
-                }));
+                }),
+            cancellationToken: cancellationToken);
     }
 
-    public void Up(IMongoDatabase database, IClientSessionHandle session)
+    public Task UpAsync(
+        IMongoDatabase database,
+        IClientSessionHandle session,
+        CancellationToken cancellationToken)
     {
-        database.GetCollection<City>(nameof(City)).Indexes.CreateOne(
+        return database.GetCollection<City>(nameof(City)).Indexes.CreateOneAsync(
             session,
             new CreateIndexModel<City>(
                 Builders<City>.IndexKeys.Ascending(x => x.Name),
                 new CreateIndexOptions
                 {
                     Unique = true
-                }));
+                }),
+            cancellationToken: cancellationToken);
     }
 }
 ```
@@ -144,7 +154,7 @@ public class _4_0_0_AddIndexByName : ITransactionalMigration
 | MongoDB Atlas Dedicated Cluster (M10+) |        ✅ Yes         | Fully supports transactions.                                     |
 | Azure Cosmos DB (MongoDB API v4.0+)    |   ✅ Yes (limited)    | Only within the same partition key; no cross-partition support.  |
 
-Standalone MongoDB instances do **not** support multi-document transactions. The migration engine automatically detects whether transactions are supported. If transactions are not supported, the transaction scope specified in `WithTransactionScope` will be ignored, and the `session` parameter of the `Up` method will be `null`.
+Standalone MongoDB instances do **not** support multi-document transactions. The migration engine automatically detects whether transactions are supported. If transactions are not supported, the transaction scope specified in `WithTransactionScope` will be ignored, and the `session` parameter of the `UpAsync` method will be `null`.
 
 **Limitations:**
 
