@@ -4,7 +4,7 @@ using System;
 
 namespace SimpleMongoMigrations.Models
 {
-    public class Migration
+    internal class Migration
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
