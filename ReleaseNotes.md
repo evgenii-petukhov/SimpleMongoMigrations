@@ -2,6 +2,12 @@
 
 ---
 
+### v1.0.14
+
+- Changed class access modifiers to `internal` to hide implementation details from NuGet consumers.
+
+---
+
 ### v1.0.13
 
 - Added asynchronous support to TransactionSupportChecker.

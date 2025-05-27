@@ -9,7 +9,7 @@ namespace SimpleMongoMigrations
     /// <summary>
     /// Checks and caches whether the connected MongoDB server supports transactions, asynchronously.
     /// </summary>
-    public class TransactionSupportChecker
+    internal class TransactionSupportChecker
     {
         private readonly IMongoClient _client;
 

@@ -7,7 +7,7 @@ using SimpleMongoMigrations.Abstractions;
 
 namespace SimpleMongoMigrations
 {
-    public class MigrationScanner
+    internal class MigrationScanner
     {
         private readonly Lazy<List<Type>> _migrationTypes;
 

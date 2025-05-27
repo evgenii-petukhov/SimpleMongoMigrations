@@ -1,6 +1,6 @@
 ﻿namespace SimpleMongoMigrations
 {
-    public static class MigrationConstants
+    internal static class MigrationConstants
     {
         public const string MigrationCollectionName = "_migrations";
     }

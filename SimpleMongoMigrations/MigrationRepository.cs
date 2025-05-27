@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations
 {
-    public class MigrationRepository
+    internal class MigrationRepository
     {
         private readonly IMongoCollection<Migration> _migrationCollection;
 

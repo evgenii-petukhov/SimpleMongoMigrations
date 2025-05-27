@@ -11,6 +11,7 @@ I decided to create a new NuGet package instead of using the original MongoDBMig
 - **Dependency issues**: MongoDBMigrations relies on an outdated `MongoDB.Driver` version (2.14.1), which prevented me from upgrading my solutions.
 - **Lack of support**: The original project appears to be unmaintained, with long delays in responding to issues and merging pull requests.
 - **Learning opportunity**: I wanted to gain hands-on experience in managing NuGet packages and setting up GitHub pipelines.
+- **Missing features:** The initial library does not support executing migrations asynchronously.
 
 ## How to use
 

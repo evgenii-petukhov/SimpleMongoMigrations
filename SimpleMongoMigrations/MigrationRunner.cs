@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations
 {
-    public class MigrationRunner
+    internal class MigrationRunner
     {
         private readonly IMongoClient _client;
         private readonly IMongoDatabase _database;
