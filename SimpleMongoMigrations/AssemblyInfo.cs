@@ -19,3 +19,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SimpleMongoMigrations.Tests")]
 [assembly: InternalsVisibleTo("SimpleMongoMigrations.Tests.NoMigrations")]
 [assembly: InternalsVisibleTo("SimpleMongoMigrations.Tests.VerifyMigrationOrder")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

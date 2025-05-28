@@ -14,26 +14,27 @@ namespace SimpleMongoMigrations
     {
         private readonly IMongoClient _client;
         private readonly IMongoDatabase _database;
-        private readonly TransactionScope _transactionScope;
-        private readonly MigrationRepository _migrationRepository;
-        private readonly MigrationScanner _migrationScanner;
-        private readonly TransactionSupportChecker _transactionSupportChecker;
+        private readonly IMigrationRepository _migrationRepository;
+        private readonly IMigrationScanner _migrationScanner;
+        private readonly ITransactionSupportChecker _transactionSupportChecker;
 
         public MigrationRunner(
             IMongoClient client,
-            string databaseName,
-            Assembly assembly,
-            TransactionScope transactionScope)
+            IMongoDatabase database,
+            IMigrationRepository migrationRepository,
+            IMigrationScanner migrationScanner,
+            ITransactionSupportChecker transactionSupportChecker)
         {
             _client = client;
-            _transactionScope = transactionScope;
-            _database = _client.GetDatabase(databaseName);
-            _migrationRepository = new MigrationRepository(_database);
-            _migrationScanner = new MigrationScanner(assembly);
-            _transactionSupportChecker = new TransactionSupportChecker(_client);
+            _database = database;
+            _migrationRepository = migrationRepository;
+            _migrationScanner = migrationScanner;
+            _transactionSupportChecker = transactionSupportChecker;
         }
 
-        public async Task RunAsync(CancellationToken cancellationToken)
+        public async Task RunAsync(
+            TransactionScope transactionScope,
+            CancellationToken cancellationToken)
         {
             var latestMigration = await _migrationRepository.GetMostRecentAppliedMigrationAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -50,33 +51,35 @@ namespace SimpleMongoMigrations
                 .Select(g => g.Type)
                 .ToList();
 
-            var transactionSupported = await _transactionSupportChecker.IsTransactionSupportedAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            if (transactionSupported)
+            if (migrationsToRun.Count == 0)
             {
-                switch (_transactionScope)
+                return;
+            }
+
+            if (transactionScope != TransactionScope.NoTransaction)
+            {
+                var transactionSupported = await _transactionSupportChecker.IsTransactionSupportedAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (transactionSupported)
                 {
-                    case TransactionScope.SingleTransaction:
+                    if (transactionScope == TransactionScope.SingleTransaction)
+                    {
                         await ApplyMigrationsInSingleTransactionAsync(migrationsToRun, cancellationToken)
                             .ConfigureAwait(false);
-                        break;
-                    case TransactionScope.PerMigration:
+                    }
+                    else
+                    {
                         await ApplyMigrationsInSeparateTransactionsAsync(migrationsToRun, cancellationToken)
                             .ConfigureAwait(false);
-                        break;
-                    case TransactionScope.NoTransaction:
-                    default:
-                        await ApplyMigrationsWithoutTransactionAsync(migrationsToRun, cancellationToken)
-                            .ConfigureAwait(false);
-                        break;
+                    }
+
+                    return;
                 }
             }
-            else
-            {
-                await ApplyMigrationsWithoutTransactionAsync(migrationsToRun, cancellationToken)
-                    .ConfigureAwait(false);
-            }
+
+            await ApplyMigrationsWithoutTransactionAsync(migrationsToRun, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private async Task ApplyMigrationsInSingleTransactionAsync(
@@ -152,19 +155,21 @@ namespace SimpleMongoMigrations
             var migration = (IMigration)Activator.CreateInstance(migrationType);
             if (session != null && migration is ITransactionalMigration transactionalMigration)
             {
-                await transactionalMigration.UpAsync(_database, session, cancellationToken)
-                    .ConfigureAwait(false);
+                await transactionalMigration.UpAsync(_database, session, cancellationToken).ConfigureAwait(false);
+                await _migrationRepository.SaveMigrationAsync(
+                    session,
+                    migrationType.GetCustomAttribute<VersionAttribute>().Version,
+                    migrationType.GetCustomAttribute<NameAttribute>()?.Name,
+                    cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await migration.UpAsync(_database, cancellationToken)
-                    .ConfigureAwait(false);
+                await migration.UpAsync(_database, cancellationToken).ConfigureAwait(false);
+                await _migrationRepository.SaveMigrationAsync(
+                    migrationType.GetCustomAttribute<VersionAttribute>().Version,
+                    migrationType.GetCustomAttribute<NameAttribute>()?.Name,
+                    cancellationToken).ConfigureAwait(false);
             }
-            await _migrationRepository.SaveMigrationAsync(
-                session,
-                migrationType.GetCustomAttribute<VersionAttribute>().Version,
-                migrationType.GetCustomAttribute<NameAttribute>()?.Name,
-                cancellationToken).ConfigureAwait(false);
         }
     }
 }

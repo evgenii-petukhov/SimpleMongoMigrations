@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using System;
+using SimpleMongoMigrations.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +9,7 @@ namespace SimpleMongoMigrations
     /// <summary>
     /// Checks and caches whether the connected MongoDB server supports transactions, asynchronously.
     /// </summary>
-    internal class TransactionSupportChecker
+    internal class TransactionSupportChecker : ITransactionSupportChecker
     {
         private readonly IMongoClient _client;
 

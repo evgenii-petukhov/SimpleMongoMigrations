@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using SimpleMongoMigrations.Abstractions;
 using SimpleMongoMigrations.Models;
 using System;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SimpleMongoMigrations
 {
-    internal class MigrationRepository
+    internal class MigrationRepository : IMigrationRepository
     {
         private readonly IMongoCollection<Migration> _migrationCollection;
 
@@ -23,20 +24,7 @@ namespace SimpleMongoMigrations
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public Task SaveMigrationAsync(
-            IClientSessionHandle session,
-            Version version, string name,
-            CancellationToken cancellationToken)
-        {
-            return session == null
-                ? SaveMigrationInternalAsync(version, name, cancellationToken)
-                : SaveMigrationInternalAsync(session, version, name, cancellationToken);
-        }
-
-        private Task SaveMigrationInternalAsync(
-            IClientSessionHandle session,
-            Version version, string name,
-            CancellationToken cancellationToken)
+        public Task SaveMigrationAsync(IClientSessionHandle session, Version version, string name, CancellationToken cancellationToken)
         {
             return _migrationCollection.InsertOneAsync(
                 session,
@@ -49,10 +37,7 @@ namespace SimpleMongoMigrations
                 }, cancellationToken: cancellationToken);
         }
 
-        private Task SaveMigrationInternalAsync(
-            Version version,
-            string name,
-            CancellationToken cancellationToken)
+        public Task SaveMigrationAsync(Version version, string name, CancellationToken cancellationToken)
         {
             return _migrationCollection.InsertOneAsync(
                 new Migration
