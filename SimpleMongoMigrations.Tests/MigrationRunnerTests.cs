@@ -394,6 +394,40 @@ namespace SimpleMongoMigrations.Tests
         }
 
         [Test]
+        public async Task RunAsync_Should_NotApplyMigrations_If_ThereAreNoMigrations()
+        {
+            // Arrange
+            var cancellationToken = CancellationToken.None;
+
+            _migrationScannerMock
+                .Setup(x => x.Migrations)
+                .Returns([]);
+
+            // Act
+            await _runner.RunAsync(TransactionScope.NoTransaction, cancellationToken);
+
+            // Assert
+            _transactionSupportCheckerMock.Verify(
+                x => x.IsTransactionSupportedAsync(cancellationToken),
+                Times.Never);
+            _clientMock.Verify(
+                x => x.StartSessionAsync(It.IsAny<ClientSessionOptions>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+            _migrationRepositoryMock.Verify(
+                x => x.GetMostRecentAppliedMigrationAsync(cancellationToken),
+                Times.Once);
+            _migrationRepositoryMock.Verify(
+                x => x.SaveMigrationAsync(It.IsAny<IClientSessionHandle>(), It.IsAny<Version>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+            _migrationRepositoryMock.Verify(
+                x => x.SaveMigrationAsync(It.IsAny<Version>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+            _migrationScannerMock.Verify(
+                x => x.Migrations,
+                Times.Once);
+        }
+
+        [Test]
         public async Task RunAsync_Should_RollbackTransaction_When_ExceptionThrown()
         {
             // Arrange
