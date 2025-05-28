@@ -2,6 +2,13 @@
 
 ---
 
+### v1.0.15
+
+- Refactored `MigrationRunner` for improved testability.
+- Added unit tests.
+
+---
+
 ### v1.0.14
 
 - Changed class access modifiers to `internal` to hide implementation details from NuGet consumers.
