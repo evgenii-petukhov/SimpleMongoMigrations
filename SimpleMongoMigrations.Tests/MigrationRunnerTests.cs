@@ -315,11 +315,6 @@ namespace SimpleMongoMigrations.Tests
                 .Setup(x => x.IsTransactionSupportedAsync(cancellationToken))
                 .ReturnsAsync(false);
 
-            var sessionMock = new Mock<IClientSessionHandle>();
-            _clientMock
-                .Setup(x => x.StartSessionAsync(null, cancellationToken))
-                .ReturnsAsync(sessionMock.Object);
-
             _migrationScannerMock
                 .Setup(x => x.Migrations)
                 .Returns([typeof(Migration1), typeof(Migration2)]);
@@ -328,12 +323,8 @@ namespace SimpleMongoMigrations.Tests
             await _runner.RunAsync(transactionScope, cancellationToken);
 
             // Assert
-            sessionMock.Verify(
-                x => x.StartTransaction(It.IsAny<TransactionOptions>()),
-                Times.Never);
-            sessionMock.Verify(
-                x => x.CommitTransactionAsync(cancellationToken),
-                Times.Never);
+            _clientMock
+                .Verify(x => x.StartSessionAsync(It.IsAny<ClientSessionOptions>(), It.IsAny<CancellationToken>()), Times.Never);
             _migrationRepositoryMock.Verify(
                 x => x.GetMostRecentAppliedMigrationAsync(cancellationToken),
                 Times.Once);
@@ -354,26 +345,41 @@ namespace SimpleMongoMigrations.Tests
                 transactionScope == TransactionScope.NoTransaction ? Times.Never : Times.Once);
         }
 
-        /*[Test]
+        [Test]
         public async Task RunAsync_Should_NotApplyMigrations_If_AlreadyUpToDate()
         {
             // Arrange
             var cancellationToken = CancellationToken.None;
-            _migrationRepositoryMock.Setup(x => x.GetMostRecentAppliedMigrationAsync(cancellationToken))
-                .ReturnsAsync(new Migration { Version = _v2 });
+            _migrationRepositoryMock
+                .Setup(x => x.GetMostRecentAppliedMigrationAsync(cancellationToken))
+                .ReturnsAsync(new Migration
+                {
+                    Version = new Version(2)
+                });
 
-            _transactionSupportCheckerMock.Setup(x => x.IsTransactionSupportedAsync(cancellationToken))
-                .ReturnsAsync(true);
+            _migrationScannerMock
+                .Setup(x => x.Migrations)
+                .Returns([typeof(Migration1), typeof(Migration2)]);
 
             // Act
             await _runner.RunAsync(TransactionScope.NoTransaction, cancellationToken);
 
             // Assert
-            _migrationRepositoryMock.Verify(x => x.SaveMigrationAsync(
-                It.IsAny<IClientSessionHandle>(), It.IsAny<Version>(), It.IsAny<string>(), cancellationToken), Times.Never);
+            _migrationRepositoryMock.Verify(
+                x => x.GetMostRecentAppliedMigrationAsync(cancellationToken),
+                Times.Once);
+            _migrationRepositoryMock.Verify(
+                x => x.SaveMigrationAsync(It.IsAny<IClientSessionHandle>(), It.IsAny<Version>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+            _migrationRepositoryMock.Verify(
+                x => x.SaveMigrationAsync(It.IsAny<Version>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+            _migrationScannerMock.Verify(
+                x => x.Migrations,
+                Times.Once);
         }
 
-        [Test]
+        /*[Test]
         public async Task ApplyMigrationsInSingleTransactionAsync_Should_AbortAndThrow_OnException()
         {
             // Arrange
@@ -390,7 +396,7 @@ namespace SimpleMongoMigrations.Tests
 
             // Simulate exception in migration
             _migrationRepositoryMock.Setup(x => x.SaveMigrationAsync(
-                sessionMock.Object, _v1, "Migration1", cancellationToken)).ThrowsAsync(new InvalidOperationException());
+                sessionMock.Object, 1, "Migration1", cancellationToken)).ThrowsAsync(new InvalidOperationException());
 
             var runner = new MigrationRunner(
                 _clientMock.Object,
