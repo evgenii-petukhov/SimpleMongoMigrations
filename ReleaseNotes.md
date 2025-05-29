@@ -2,6 +2,12 @@
 
 ---
 
+### v1.0.16
+
+- Updated README.md: add link to real-life usage example.
+
+---
+
 ### v1.0.15
 
 - Refactored `MigrationRunner` for improved testability.
